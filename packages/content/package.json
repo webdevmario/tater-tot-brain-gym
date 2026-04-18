@@ -1,0 +1,6 @@
+{
+  "name": "@ttbg/content",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Seed pack files for Tater Tot Brain Gym. Loaded once via `pnpm seed`. After seeding, the DB is source of truth."
+}

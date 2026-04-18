@@ -1,0 +1,175 @@
+// Tater Tot Brain Gym - Database Schema
+//
+// Design notes:
+// - No real auth. A "Kid" is a profile, not a user account.
+// - Admin access is gated by an AppSetting PIN, not per-user auth.
+// - Packs are created and edited in the admin UI. The DB is the source of truth.
+// - Seed files in packages/content/packs/ are loaded once via `pnpm seed` on
+//   first setup. After seeding, the files are reference-only and not consulted
+//   by the app. Admin can import/export packs as JSON for backup or sharing.
+// - Items have stable IDs so attempts and review state survive pack edits.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Kids (profiles) ----------
+
+model Kid {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  displayName     String   // what shows in the UI, can include emoji
+  avatarPath      String?  // relative path to uploaded/customized photo
+  curriculum      String?  // "abeka" | "classical-conversations" | "other" | null
+  grade           Int      // current grade level (e.g. 3 for a kid working at 3rd grade)
+  sessionMinutes  Int      @default(12) // target session length
+  weeklyGoal      Int      @default(3)  // target sessions per week
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  enabledPacks    KidPack[]
+  attempts        Attempt[]
+  reviewStates    ReviewState[]
+  sessions        Session[]
+  badges          Badge[]
+}
+
+// ---------- Packs and Items ----------
+
+model Pack {
+  id            String   @id // e.g. "math-subtraction-facts-0-20"
+  title         String
+  description   String?
+  subject       String   // "math" | "language-arts" | "geography" | "science" | "spelling" | "custom"
+  questionType  String   // "multiple-choice" | "type-answer" | "spelling-bee" | "math-drill" | "matching"
+  curriculum    String?  // null for generic packs
+  source        String?  // e.g. "Common Core Math 2.OA.B.2" or "Dolch 2nd grade sight words"
+  gradeMin      Int
+  gradeMax      Int
+  version       Int      @default(1)
+  archived      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items          Item[]
+  enabledForKids KidPack[]
+}
+
+model Item {
+  id          String   @id // stable ID so attempts survive edits
+  packId      String
+  pack        Pack     @relation(fields: [packId], references: [id], onDelete: Cascade)
+  gradeLevel  Int      // grade this specific item targets
+  prompt      String   // question, word, or problem
+  answer      String   // canonical answer
+  choices     String?  // JSON array of choices (for multiple-choice)
+  context     String?  // sentence, definition, or hint for "teach me" card
+  mnemonic    String?  // optional memory aid
+  audioText   String?  // what TTS should speak (defaults to prompt for spelling bees)
+  tags        String?  // JSON array of freeform tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attempts     Attempt[]
+  reviewStates ReviewState[]
+}
+
+// ---------- Pack enablement per kid ----------
+
+model KidPack {
+  id        String   @id @default(cuid())
+  kidId     String
+  packId    String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  kid       Kid      @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  pack      Pack     @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@unique([kidId, packId])
+}
+
+// ---------- Sessions (a single workout) ----------
+
+model Session {
+  id            String    @id @default(cuid())
+  kidId         String
+  kid           Kid       @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  startedAt     DateTime  @default(now())
+  endedAt       DateTime?
+  targetMinutes Int
+  xpEarned      Int       @default(0)
+
+  attempts      Attempt[]
+}
+
+// ---------- Attempts (every question answered) ----------
+
+model Attempt {
+  id             String   @id @default(cuid())
+  kidId          String
+  itemId         String
+  sessionId      String?
+  correct        Boolean
+  timedOut       Boolean  @default(false)
+  responseMs     Int
+  userAnswer     String?
+  shownTeachCard Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  kid     Kid      @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  item    Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([kidId, itemId])
+  @@index([kidId, createdAt])
+}
+
+// ---------- Spaced repetition state ----------
+// One row per (kid, item). Simplified SM-2: ease factor, interval, next review.
+
+model ReviewState {
+  id             String    @id @default(cuid())
+  kidId          String
+  itemId         String
+  easeFactor     Float     @default(2.5)
+  intervalDays   Float     @default(0)  // 0 = new, <1 = same-session requeue
+  repetitions    Int       @default(0)
+  lapses         Int       @default(0)
+  nextReviewAt   DateTime  @default(now())
+  masteredAt     DateTime?
+  strugglingFlag Boolean   @default(false)
+  updatedAt      DateTime  @updatedAt
+
+  kid  Kid  @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([kidId, itemId])
+  @@index([kidId, nextReviewAt])
+}
+
+// ---------- Badges ----------
+
+model Badge {
+  id       String   @id @default(cuid())
+  kidId    String
+  code     String
+  label    String
+  earnedAt DateTime @default(now())
+
+  kid Kid @relation(fields: [kidId], references: [id], onDelete: Cascade)
+
+  @@unique([kidId, code])
+}
+
+// ---------- App settings ----------
+
+model AppSetting {
+  key   String @id
+  value String
+}

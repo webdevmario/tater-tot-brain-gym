@@ -1,0 +1,47 @@
+{
+  "id": "science-basic-facts",
+  "title": "Basic Science Facts",
+  "description": "Foundational science knowledge: solar system, human body basics, animal classification, states of matter, and Earth science essentials. Grade tagged from 2 through 6.",
+  "subject": "science",
+  "questionType": "multiple-choice",
+  "source": "Next Generation Science Standards (NGSS) K-5 Earth/Space and Life Science performance expectations. Content reflects widely accepted elementary science curriculum.",
+  "gradeMin": 2,
+  "gradeMax": 6,
+  "items": [
+    { "id": "sci-g2-001", "gradeLevel": 2, "prompt": "What star is at the center of our solar system?", "answer": "The Sun", "choices": ["The Moon", "The Sun", "Mars", "Earth"] },
+    { "id": "sci-g2-002", "gradeLevel": 2, "prompt": "What planet do we live on?", "answer": "Earth", "choices": ["Mars", "Jupiter", "Earth", "Venus"] },
+    { "id": "sci-g2-003", "gradeLevel": 2, "prompt": "What are the three states of matter we learn about first?", "answer": "Solid, liquid, gas", "choices": ["Hot, warm, cold", "Big, medium, small", "Solid, liquid, gas", "Wet, dry, damp"] },
+    { "id": "sci-g2-004", "gradeLevel": 2, "prompt": "Which of these is an example of a LIQUID?", "answer": "Water", "choices": ["Ice", "Water", "Steam", "Rock"] },
+    { "id": "sci-g2-005", "gradeLevel": 2, "prompt": "What do plants need to make food?", "answer": "Sunlight, water, and air", "choices": ["Only water", "Only sunlight", "Sunlight, water, and air", "Soil only"], "context": "Plants use sunlight, water, and carbon dioxide from the air to make their own food. This is called photosynthesis." },
+    { "id": "sci-g2-006", "gradeLevel": 2, "prompt": "Which animal lays eggs?", "answer": "Chicken", "choices": ["Dog", "Cat", "Chicken", "Cow"] },
+
+    { "id": "sci-g3-001", "gradeLevel": 3, "prompt": "How many planets are in our solar system?", "answer": "8", "choices": ["7", "8", "9", "10"], "context": "Pluto was reclassified as a dwarf planet in 2006, leaving 8 official planets." },
+    { "id": "sci-g3-002", "gradeLevel": 3, "prompt": "Which planet is closest to the Sun?", "answer": "Mercury", "choices": ["Venus", "Mercury", "Earth", "Mars"] },
+    { "id": "sci-g3-003", "gradeLevel": 3, "prompt": "Which is the largest planet in our solar system?", "answer": "Jupiter", "choices": ["Earth", "Saturn", "Jupiter", "Neptune"] },
+    { "id": "sci-g3-004", "gradeLevel": 3, "prompt": "What organ pumps blood through your body?", "answer": "Heart", "choices": ["Brain", "Lungs", "Heart", "Stomach"] },
+    { "id": "sci-g3-005", "gradeLevel": 3, "prompt": "What organ do you breathe with?", "answer": "Lungs", "choices": ["Heart", "Lungs", "Liver", "Kidneys"] },
+    { "id": "sci-g3-006", "gradeLevel": 3, "prompt": "What is the process called when water turns into vapor?", "answer": "Evaporation", "choices": ["Condensation", "Evaporation", "Precipitation", "Freezing"] },
+    { "id": "sci-g3-007", "gradeLevel": 3, "prompt": "Which of these is a MAMMAL?", "answer": "Dolphin", "choices": ["Shark", "Dolphin", "Octopus", "Crab"], "context": "Dolphins look like fish but they are mammals. They breathe air and feed milk to their young." },
+
+    { "id": "sci-g4-001", "gradeLevel": 4, "prompt": "What are the planets in order from the Sun?", "answer": "Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune", "choices": ["Venus, Mercury, Earth, Mars, Jupiter, Saturn, Uranus, Neptune", "Mercury, Earth, Venus, Mars, Jupiter, Saturn, Uranus, Neptune", "Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune", "Mercury, Venus, Mars, Earth, Jupiter, Saturn, Uranus, Neptune"], "mnemonic": "My Very Educated Mother Just Served Us Noodles." },
+    { "id": "sci-g4-002", "gradeLevel": 4, "prompt": "What is the main gas that makes up Earth's atmosphere?", "answer": "Nitrogen", "choices": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], "context": "Earth's atmosphere is about 78% nitrogen and 21% oxygen. We think of oxygen as the important one because we breathe it, but nitrogen is by far the most common." },
+    { "id": "sci-g4-003", "gradeLevel": 4, "prompt": "Which is NOT a vertebrate (animal with a backbone)?", "answer": "Octopus", "choices": ["Fish", "Frog", "Octopus", "Snake"], "context": "Octopuses are invertebrates (mollusks). Fish, frogs, and snakes all have backbones." },
+    { "id": "sci-g4-004", "gradeLevel": 4, "prompt": "What is the largest organ in the human body?", "answer": "Skin", "choices": ["Heart", "Brain", "Liver", "Skin"] },
+    { "id": "sci-g4-005", "gradeLevel": 4, "prompt": "What force pulls objects toward Earth?", "answer": "Gravity", "choices": ["Magnetism", "Friction", "Gravity", "Electricity"] },
+    { "id": "sci-g4-006", "gradeLevel": 4, "prompt": "What is the water cycle?", "answer": "The continuous movement of water through evaporation, condensation, and precipitation", "choices": ["Water turning to ice", "The tides going in and out", "The continuous movement of water through evaporation, condensation, and precipitation", "Rivers flowing to the sea"] },
+
+    { "id": "sci-g5-001", "gradeLevel": 5, "prompt": "What are the three types of rocks?", "answer": "Igneous, sedimentary, metamorphic", "choices": ["Hard, soft, medium", "Igneous, sedimentary, metamorphic", "Mountain, valley, river", "Granite, limestone, marble"] },
+    { "id": "sci-g5-002", "gradeLevel": 5, "prompt": "What part of a plant cell do plant cells have that animal cells do NOT?", "answer": "Cell wall and chloroplasts", "choices": ["Nucleus", "Cell membrane", "Cell wall and chloroplasts", "Cytoplasm"] },
+    { "id": "sci-g5-003", "gradeLevel": 5, "prompt": "What is the basic unit of all living things?", "answer": "The cell", "choices": ["The atom", "The cell", "The organ", "The tissue"] },
+    { "id": "sci-g5-004", "gradeLevel": 5, "prompt": "What do we call animals that eat only plants?", "answer": "Herbivores", "choices": ["Carnivores", "Omnivores", "Herbivores", "Decomposers"] },
+    { "id": "sci-g5-005", "gradeLevel": 5, "prompt": "What do we call animals that eat both plants and animals?", "answer": "Omnivores", "choices": ["Carnivores", "Omnivores", "Herbivores", "Scavengers"], "context": "Humans are omnivores. Bears are omnivores. Pigs are omnivores." },
+    { "id": "sci-g5-006", "gradeLevel": 5, "prompt": "Which gas do humans breathe IN from the air?", "answer": "Oxygen", "choices": ["Nitrogen", "Oxygen", "Carbon dioxide", "Helium"] },
+    { "id": "sci-g5-007", "gradeLevel": 5, "prompt": "Which gas do humans breathe OUT?", "answer": "Carbon dioxide", "choices": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"] },
+
+    { "id": "sci-g6-001", "gradeLevel": 6, "prompt": "What are the main layers of the Earth?", "answer": "Crust, mantle, outer core, inner core", "choices": ["Surface, middle, bottom", "Crust, mantle, outer core, inner core", "Land, water, sky", "Rock, dirt, lava"] },
+    { "id": "sci-g6-002", "gradeLevel": 6, "prompt": "What is the smallest unit of matter?", "answer": "Atom", "choices": ["Molecule", "Atom", "Cell", "Proton"], "context": "Atoms are made of smaller particles (protons, neutrons, electrons) but atoms are the smallest unit that retains the properties of an element." },
+    { "id": "sci-g6-003", "gradeLevel": 6, "prompt": "What process do plants use to make their own food?", "answer": "Photosynthesis", "choices": ["Respiration", "Photosynthesis", "Digestion", "Germination"] },
+    { "id": "sci-g6-004", "gradeLevel": 6, "prompt": "What is the boiling point of water at sea level in Fahrenheit?", "answer": "212 degrees F", "choices": ["100 degrees F", "180 degrees F", "212 degrees F", "250 degrees F"], "context": "Water boils at 212 F or 100 C at sea level. At higher elevations it boils at lower temperatures." },
+    { "id": "sci-g6-005", "gradeLevel": 6, "prompt": "What is the freezing point of water in Fahrenheit?", "answer": "32 degrees F", "choices": ["0 degrees F", "32 degrees F", "50 degrees F", "100 degrees F"] }
+  ]
+}

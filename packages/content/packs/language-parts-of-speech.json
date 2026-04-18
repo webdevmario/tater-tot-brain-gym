@@ -1,0 +1,39 @@
+{
+  "id": "language-parts-of-speech",
+  "title": "Parts of Speech",
+  "description": "Identifying parts of speech in context. Starts with nouns, verbs, and adjectives (grade 3), adds adverbs and pronouns (grade 4), then prepositions, conjunctions, and interjections (grades 5-6).",
+  "subject": "language-arts",
+  "questionType": "multiple-choice",
+  "source": "Common Core ELA grammar standards L.3.1, L.4.1, L.5.1. Sentences drafted for this pack.",
+  "gradeMin": 3,
+  "gradeMax": 6,
+  "items": [
+    { "id": "pos-g3-001", "gradeLevel": 3, "prompt": "In the sentence 'The happy dog barked loudly,' which word is a NOUN?", "answer": "dog", "choices": ["happy", "dog", "barked", "loudly"], "context": "A noun is a person, place, thing, or idea." },
+    { "id": "pos-g3-002", "gradeLevel": 3, "prompt": "In the sentence 'The happy dog barked loudly,' which word is a VERB?", "answer": "barked", "choices": ["happy", "dog", "barked", "loudly"], "context": "A verb is an action or state of being." },
+    { "id": "pos-g3-003", "gradeLevel": 3, "prompt": "In the sentence 'The happy dog barked loudly,' which word is an ADJECTIVE?", "answer": "happy", "choices": ["happy", "dog", "barked", "loudly"], "context": "An adjective describes a noun." },
+    { "id": "pos-g3-004", "gradeLevel": 3, "prompt": "Which word is a NOUN?", "answer": "school", "choices": ["school", "run", "quickly", "bright"] },
+    { "id": "pos-g3-005", "gradeLevel": 3, "prompt": "Which word is a VERB?", "answer": "jump", "choices": ["tree", "jump", "tall", "above"] },
+    { "id": "pos-g3-006", "gradeLevel": 3, "prompt": "Which word is an ADJECTIVE?", "answer": "shiny", "choices": ["shiny", "shine", "shoes", "shop"] },
+    { "id": "pos-g3-007", "gradeLevel": 3, "prompt": "In 'She has three sisters,' which word is the NOUN?", "answer": "sisters", "choices": ["She", "has", "three", "sisters"] },
+    { "id": "pos-g3-008", "gradeLevel": 3, "prompt": "In 'The baby cried all night,' which word is the VERB?", "answer": "cried", "choices": ["baby", "cried", "all", "night"] },
+
+    { "id": "pos-g4-001", "gradeLevel": 4, "prompt": "In 'She ran quickly across the field,' which word is an ADVERB?", "answer": "quickly", "choices": ["She", "ran", "quickly", "field"], "context": "An adverb describes a verb, an adjective, or another adverb. It often tells how, when, where, or to what degree. Many end in -ly." },
+    { "id": "pos-g4-002", "gradeLevel": 4, "prompt": "In 'The bird sang beautifully,' which word is an ADVERB?", "answer": "beautifully", "choices": ["The", "bird", "sang", "beautifully"] },
+    { "id": "pos-g4-003", "gradeLevel": 4, "prompt": "Which word is a PRONOUN?", "answer": "she", "choices": ["house", "she", "walked", "green"], "context": "A pronoun replaces a noun. Examples: he, she, it, they, we, you, I, me, him, her, them, us." },
+    { "id": "pos-g4-004", "gradeLevel": 4, "prompt": "In 'They gave us the keys,' which word is NOT a pronoun?", "answer": "keys", "choices": ["They", "us", "keys", "all are pronouns"] },
+    { "id": "pos-g4-005", "gradeLevel": 4, "prompt": "Which word is an ADVERB?", "answer": "softly", "choices": ["soft", "softly", "softness", "soften"] },
+    { "id": "pos-g4-006", "gradeLevel": 4, "prompt": "In 'The old man walked slowly,' which word is the ADVERB?", "answer": "slowly", "choices": ["old", "man", "walked", "slowly"] },
+
+    { "id": "pos-g5-001", "gradeLevel": 5, "prompt": "In 'The book is on the table,' which word is a PREPOSITION?", "answer": "on", "choices": ["book", "is", "on", "table"], "context": "A preposition shows a relationship of location, time, or direction between words. Common ones: on, in, under, over, to, from, with, between, through." },
+    { "id": "pos-g5-002", "gradeLevel": 5, "prompt": "In 'We walked through the park,' which word is a PREPOSITION?", "answer": "through", "choices": ["We", "walked", "through", "park"] },
+    { "id": "pos-g5-003", "gradeLevel": 5, "prompt": "In 'I like apples and oranges,' which word is a CONJUNCTION?", "answer": "and", "choices": ["I", "like", "apples", "and"], "context": "A conjunction joins words, phrases, or clauses. Common ones: and, but, or, so, because, if, when, although." },
+    { "id": "pos-g5-004", "gradeLevel": 5, "prompt": "In 'She wanted to go, but it was raining,' which word is a CONJUNCTION?", "answer": "but", "choices": ["wanted", "go", "but", "raining"] },
+    { "id": "pos-g5-005", "gradeLevel": 5, "prompt": "Which word is a PREPOSITION?", "answer": "beneath", "choices": ["quickly", "beneath", "they", "ran"] },
+    { "id": "pos-g5-006", "gradeLevel": 5, "prompt": "Which word is a CONJUNCTION?", "answer": "because", "choices": ["loudly", "because", "purple", "cat"] },
+
+    { "id": "pos-g6-001", "gradeLevel": 6, "prompt": "In 'Wow! That was amazing,' what part of speech is WOW?", "answer": "interjection", "choices": ["noun", "verb", "adverb", "interjection"], "context": "An interjection is a word that expresses strong emotion and often stands alone. Examples: wow, ouch, hey, oh, yikes." },
+    { "id": "pos-g6-002", "gradeLevel": 6, "prompt": "In 'The cat that I adopted is friendly,' what part of speech is THAT?", "answer": "pronoun", "choices": ["noun", "pronoun", "conjunction", "adjective"], "context": "Here THAT is a relative pronoun introducing a clause about the cat." },
+    { "id": "pos-g6-003", "gradeLevel": 6, "prompt": "In 'Running is good exercise,' what part of speech is RUNNING?", "answer": "noun", "choices": ["noun", "verb", "adjective", "adverb"], "context": "RUNNING looks like a verb, but here it is a gerund, which is a verb form acting as a noun. You can tell because it's the subject of the sentence." },
+    { "id": "pos-g6-004", "gradeLevel": 6, "prompt": "In 'She sings very well,' what part of speech is VERY?", "answer": "adverb", "choices": ["adjective", "adverb", "preposition", "pronoun"], "context": "VERY is an adverb modifying another adverb (well). Adverbs can modify verbs, adjectives, or other adverbs." }
+  ]
+}

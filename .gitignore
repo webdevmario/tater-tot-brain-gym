@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
+
+# Env
+.env
+.env.local
+
+# Prisma / SQLite local data
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+apps/api/prisma/migrations/dev.db*
+
+# Uploaded avatars (local data, not source)
+apps/api/uploads/
+
+# Editor
+.vscode/
+.idea/

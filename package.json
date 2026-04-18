@@ -1,0 +1,18 @@
+{
+  "name": "tater-tot-brain-gym",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A homeschool retention training app for the Tater Tot Academy",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --filter \"./apps/*\" build",
+    "seed": "pnpm --filter @ttbg/api seed",
+    "db:migrate": "pnpm --filter @ttbg/api db:migrate",
+    "db:studio": "pnpm --filter @ttbg/api db:studio",
+    "db:reset": "pnpm --filter @ttbg/api db:reset"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
