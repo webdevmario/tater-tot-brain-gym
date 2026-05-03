@@ -41,18 +41,18 @@ export default function AdminKids() {
           <div key={kid.id} className="card flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-spud-100 flex items-center justify-center text-2xl overflow-hidden border-2 border-teal-200 shrink-0">
               {kid.avatarPath ? (
-                <img src={kid.avatarPath} alt={kid.displayName} className="w-full h-full object-cover" />
+                <img src={kid.avatarPath} alt={kid.handle} className="w-full h-full object-cover" />
               ) : (
                 "🥔"
               )}
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-display font-bold text-xl text-teal-500">
-                {kid.displayName}
+                {kid.firstName} {kid.lastName}
+                <span className="ml-2 text-base font-normal text-teal-400">@{kid.handle}</span>
               </h3>
               <p className="text-sm text-teal-400">
-                Grade {kid.grade}
-                {kid.curriculum && ` · ${kid.curriculum}`} · {kid.sessionMinutes} min sessions
+                Grade {kid.grade} · {kid.sessionMinutes} min sessions · {kid.weeklyGoal}×/week
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -106,9 +106,9 @@ function KidForm({
   onClose: () => void;
 }) {
   const [form, setForm] = useState({
-    name: kid?.name ?? "",
-    displayName: kid?.displayName ?? "",
-    curriculum: kid?.curriculum ?? "",
+    firstName: kid?.firstName ?? "",
+    lastName: kid?.lastName ?? "",
+    handle: kid?.handle ?? "",
     grade: kid?.grade ?? 2,
     sessionMinutes: kid?.sessionMinutes ?? 12,
     weeklyGoal: kid?.weeklyGoal ?? 3,
@@ -123,15 +123,11 @@ function KidForm({
     e.preventDefault();
     setError(null);
     try {
-      const payload = {
-        ...form,
-        curriculum: form.curriculum || null,
-      };
       let savedKid: Kid;
       if (kid) {
-        savedKid = await api.put<Kid>(`/api/kids/${kid.id}`, payload);
+        savedKid = await api.put<Kid>(`/api/kids/${kid.id}`, form);
       } else {
-        savedKid = await api.post<Kid>("/api/kids", payload);
+        savedKid = await api.post<Kid>("/api/kids", form);
       }
       // Update pack enablements
       for (const pack of packs) {
@@ -199,23 +195,34 @@ function KidForm({
         <form onSubmit={save} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Profile name (unique)</label>
+              <label className="label">First name</label>
               <input
                 className="input"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                 required
               />
             </div>
             <div>
-              <label className="label">Display name</label>
+              <label className="label">Last name</label>
               <input
                 className="input"
-                value={form.displayName}
-                onChange={(e) => setForm({ ...form, displayName: e.target.value })}
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label className="label">Handle (unique, can include emoji)</label>
+            <input
+              className="input"
+              value={form.handle}
+              onChange={(e) => setForm({ ...form, handle: e.target.value })}
+              placeholder="e.g. roo, big-bear, ⚡flash"
+              required
+            />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -256,20 +263,6 @@ function KidForm({
                 }
               />
             </div>
-          </div>
-
-          <div>
-            <label className="label">Curriculum (optional)</label>
-            <select
-              className="input"
-              value={form.curriculum}
-              onChange={(e) => setForm({ ...form, curriculum: e.target.value })}
-            >
-              <option value="">None</option>
-              <option value="abeka">Abeka</option>
-              <option value="classical-conversations">Classical Conversations</option>
-              <option value="other">Other</option>
-            </select>
           </div>
 
           {kid && (

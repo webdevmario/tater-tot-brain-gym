@@ -33,10 +33,10 @@ export const api = {
 
 export type Kid = {
   id: string;
-  name: string;
-  displayName: string;
+  firstName: string;
+  lastName: string;
+  handle: string;
   avatarPath: string | null;
-  curriculum: string | null;
   grade: number;
   sessionMinutes: number;
   weeklyGoal: number;
@@ -49,7 +49,6 @@ export type Pack = {
   description: string | null;
   subject: string;
   questionType: string;
-  curriculum: string | null;
   source: string | null;
   gradeMin: number;
   gradeMax: number;

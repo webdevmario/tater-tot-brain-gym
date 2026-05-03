@@ -39,7 +39,6 @@ type SeedPack = {
   description?: string;
   subject: string;
   questionType: string;
-  curriculum?: string | null;
   source?: string;
   gradeMin: number;
   gradeMax: number;
@@ -74,7 +73,6 @@ async function seedPack(pack: SeedPack) {
       description: pack.description,
       subject: pack.subject,
       questionType: pack.questionType,
-      curriculum: pack.curriculum ?? null,
       source: pack.source,
       gradeMin: pack.gradeMin,
       gradeMax: pack.gradeMax,

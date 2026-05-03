@@ -22,7 +22,6 @@ const PackSchema = z.object({
   description: z.string().optional(),
   subject: z.string().min(1),
   questionType: z.string().min(1),
-  curriculum: z.string().nullable().optional(),
   source: z.string().optional(),
   gradeMin: z.number().int().min(0).max(12),
   gradeMax: z.number().int().min(0).max(12),
@@ -62,7 +61,6 @@ router.post("/", async (req, res) => {
   const created = await prisma.pack.create({
     data: {
       ...pack,
-      curriculum: pack.curriculum ?? null,
       items: {
         create: items.map((item) => ({
           id: item.id,
@@ -159,7 +157,6 @@ router.get("/:id/export", async (req, res) => {
     description: pack.description,
     subject: pack.subject,
     questionType: pack.questionType,
-    curriculum: pack.curriculum,
     source: pack.source,
     gradeMin: pack.gradeMin,
     gradeMax: pack.gradeMax,

@@ -40,17 +40,17 @@ export default function KidHome() {
       <div className="card mb-8 flex items-center gap-6">
         <div className="w-28 h-28 rounded-2xl bg-spud-100 flex items-center justify-center text-5xl overflow-hidden border-2 border-teal-200">
           {kid.avatarPath ? (
-            <img src={kid.avatarPath} alt={kid.displayName} className="w-full h-full object-cover" />
+            <img src={kid.avatarPath} alt={kid.handle} className="w-full h-full object-cover" />
           ) : (
             <span>🥔</span>
           )}
         </div>
         <div>
           <h1 className="text-5xl font-display font-bold text-teal-500">
-            Hi, {kid.displayName}!
+            Hi, {kid.firstName}!
           </h1>
           <p className="text-teal-400 mt-2 text-lg">
-            Grade {kid.grade} · {enabledCount} pack{enabledCount === 1 ? "" : "s"} ready
+            @{kid.handle} · Grade {kid.grade} · {enabledCount} pack{enabledCount === 1 ? "" : "s"} ready
           </p>
         </div>
       </div>

@@ -22,13 +22,13 @@ datasource db {
 
 model Kid {
   id              String   @id @default(cuid())
-  name            String   @unique
-  displayName     String   // what shows in the UI, can include emoji
+  firstName       String
+  lastName        String
+  handle          String   @unique // short identifier, may include emoji
   avatarPath      String?  // relative path to uploaded/customized photo
-  curriculum      String?  // "abeka" | "classical-conversations" | "other" | null
   grade           Int      // current grade level (e.g. 3 for a kid working at 3rd grade)
   sessionMinutes  Int      @default(12) // target session length
-  weeklyGoal      Int      @default(3)  // target sessions per week
+  weeklyGoal      Int      @default(3)  // target sessions per week — kid aims to do at least this many sessions per week
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -47,7 +47,6 @@ model Pack {
   description   String?
   subject       String   // "math" | "language-arts" | "geography" | "science" | "spelling" | "custom"
   questionType  String   // "multiple-choice" | "type-answer" | "spelling-bee" | "math-drill" | "matching"
-  curriculum    String?  // null for generic packs
   source        String?  // e.g. "Common Core Math 2.OA.B.2" or "Dolch 2nd grade sight words"
   gradeMin      Int
   gradeMax      Int
