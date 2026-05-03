@@ -10,7 +10,15 @@
     "seed": "pnpm --filter @ttbg/api seed",
     "db:migrate": "pnpm --filter @ttbg/api db:migrate",
     "db:studio": "pnpm --filter @ttbg/api db:studio",
-    "db:reset": "pnpm --filter @ttbg/api db:reset"
+    "db:reset": "pnpm --filter @ttbg/api db:reset",
+    "db:backup": "mkdir -p backups && cp apps/api/prisma/dev.db backups/dev-$(date +%Y%m%d-%H%M%S).db && echo 'Backup created in backups/'",
+    "prod:start": "launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.plist",
+    "prod:stop": "launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.plist 2>/dev/null; lsof -ti:4000 | xargs kill -9 2>/dev/null; true",
+    "prod:restart": "pnpm prod:stop && sleep 1 && pnpm prod:start",
+    "prod:status": "launchctl list | grep com.tatertot.braingym || echo 'not loaded'",
+    "prod:logs": "tail -n 200 -f /tmp/tatertot-braingym.log",
+    "prod:errors": "tail -n 200 -f /tmp/tatertot-braingym-error.log",
+    "prod:deploy": "pnpm build && pnpm --filter @ttbg/api exec prisma migrate deploy && pnpm prod:restart"
   },
   "devDependencies": {
     "typescript": "^5.4.0"

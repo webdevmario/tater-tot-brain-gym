@@ -16,6 +16,9 @@ apps/api/prisma/migrations/dev.db*
 # Uploaded avatars (local data, not source)
 apps/api/uploads/
 
+# Local DB snapshots
+backups/
+
 # Editor
 .vscode/
 .idea/

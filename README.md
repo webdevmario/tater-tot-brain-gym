@@ -200,7 +200,7 @@ pnpm dev
 
 The API runs on http://localhost:4000 and the web app on http://localhost:5173.
 
-### Daily use
+### Daily use (development)
 
 ```bash
 pnpm dev
@@ -217,7 +217,69 @@ pnpm db:reset
 
 # Reload new seed packs (existing packs are not overwritten)
 pnpm seed
+
+# Snapshot the database into ./backups/
+pnpm db:backup
 ```
+
+---
+
+## Production (always-on, reachable from kid devices)
+
+Brain Gym is meant to live on one Mac and be reachable from your
+family's iPads, phones, and laptops over Tailscale. The setup mirrors
+`financial-insider`:
+
+- The Express API runs under launchd, auto-starting on login and
+  auto-restarting on crash.
+- The API serves the built React app and `/uploads` from a single port
+  (4000), so there is one URL to remember.
+- All access is over Tailscale — nothing is exposed to the public
+  internet.
+
+### One-time install
+
+```bash
+# Build the frontend
+pnpm build
+
+# Install the launchd plist
+cp scripts/com.tatertot.braingym.plist ~/Library/LaunchAgents/com.tatertot.braingym.plist
+
+# Start the service
+pnpm prod:start
+pnpm prod:status      # confirm it's running
+pnpm prod:logs        # tail startup output
+```
+
+### Tailscale
+
+```bash
+# On the Mac
+brew install --cask tailscale       # if not already
+tailscale up
+tailscale status                    # see all your devices
+hostname                            # this Mac's MagicDNS prefix
+```
+
+On each kid's device:
+
+1. Install Tailscale (App Store on iOS/iPadOS, Play Store on Android).
+2. Sign in with the same Tailscale account (or accept an invite).
+3. Open `http://<mac-name>.tail-xxxx.ts.net:4000` and "Add to Home
+   Screen" so it looks like an app.
+
+### Day-to-day production commands
+
+```bash
+pnpm prod:deploy      # build + migrate + restart (use after code changes)
+pnpm prod:restart     # restart without rebuilding
+pnpm prod:stop        # stop, e.g. before doing dev work
+pnpm prod:logs        # tail stdout
+pnpm prod:errors      # tail stderr
+```
+
+Full operations runbook: [docs/OPERATIONS.md](docs/OPERATIONS.md).
 
 ---
 

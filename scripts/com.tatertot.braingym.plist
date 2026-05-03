@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tatertot.braingym</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>source ~/.nvm/nvm.sh &amp;&amp; cd ~/Documents/development/projects/tater-tot-brain-gym/apps/api &amp;&amp; node --import tsx src/index.ts</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>NODE_ENV</key>
+        <string>production</string>
+        <key>PORT</key>
+        <string>4000</string>
+        <key>HOST</key>
+        <string>0.0.0.0</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/tatertot-braingym.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/tatertot-braingym-error.log</string>
+</dict>
+</plist>
