@@ -23,9 +23,14 @@ export default function AdminLayout() {
         : "text-teal-400 hover:bg-cream-100"
     }`;
 
+  // h-screen shell with overflow-hidden on the outer wrapper so the
+  // page itself never scrolls. Only <main> has overflow-y-auto, so a
+  // tall page (Packs) gets a scrollbar inside the content area, while
+  // the header and sidebar stay put. Switching sections doesn't shift
+  // anything horizontally regardless of scrollbar style.
   return (
-    <div className="min-h-screen">
-      <header className="border-b-2 border-teal-100 bg-white/80 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <header className="shrink-0 border-b-2 border-teal-100 bg-white/80 backdrop-blur px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link to="/" className="text-teal-400 hover:text-teal-500">
             ← Exit admin
@@ -40,8 +45,8 @@ export default function AdminLayout() {
         </button>
       </header>
 
-      <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
-        <aside className="md:w-60 p-4 md:border-r-2 border-teal-100 md:min-h-[calc(100vh-73px)]">
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full overflow-hidden">
+        <aside className="shrink-0 md:w-60 p-4 md:border-r-2 border-teal-100 overflow-y-auto">
           <nav className="space-y-2">
             <NavLink to="/admin/kids" className={({ isActive }) => navItemClass(isActive)}>
               Kids
@@ -55,7 +60,7 @@ export default function AdminLayout() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-6 md:p-8 min-h-[calc(100vh-73px)]">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
           <Outlet />
         </main>
       </div>

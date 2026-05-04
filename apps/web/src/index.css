@@ -5,10 +5,6 @@
 @layer base {
   html {
     @apply bg-cream-50;
-    /* Always reserve scrollbar space so navigating from a short page
-       (Settings) to a tall one (Packs) doesn't shift everything left
-       by ~15px when the scrollbar appears. */
-    scrollbar-gutter: stable;
   }
   body {
     @apply font-body text-teal-600 antialiased;
