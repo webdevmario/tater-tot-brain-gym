@@ -55,7 +55,7 @@ export default function Home() {
               to={`/kid/${kid.id}`}
               className="card hover:scale-105 transition-transform flex items-center gap-6 group"
             >
-              <div className="shrink-0 w-24 h-24 rounded-2xl bg-spud-100 flex items-center justify-center text-5xl overflow-hidden border-2 border-teal-200">
+              <div className="shrink-0 w-20 h-20 rounded-2xl bg-spud-100 flex items-center justify-center text-4xl overflow-hidden border-2 border-teal-200">
                 {kid.avatarPath ? (
                   <img
                     src={kid.avatarPath}
@@ -67,14 +67,14 @@ export default function Home() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-3xl font-display font-semibold text-teal-500 group-hover:text-teal-400 truncate">
+                <h2 className="text-2xl font-display font-semibold text-teal-500 group-hover:text-teal-400 truncate">
                   @{kid.username}
                 </h2>
-                <p className="text-teal-400 mt-1 truncate">
+                <p className="text-teal-400 mt-1 truncate text-sm">
                   {kid.firstName} {kid.lastName} · Grade {kid.grade}
                 </p>
               </div>
-              <div className="text-teal-300 text-3xl group-hover:text-teal-400 group-hover:translate-x-1 transition-transform">
+              <div className="text-teal-300 text-2xl group-hover:text-teal-400 group-hover:translate-x-1 transition-transform shrink-0">
                 →
               </div>
             </Link>

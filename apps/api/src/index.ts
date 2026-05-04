@@ -14,10 +14,19 @@ const HOST = process.env.HOST ?? "0.0.0.0";
 const UPLOADS_DIR = process.env.UPLOADS_DIR ?? "./uploads";
 const STATIC_DIR =
   process.env.STATIC_DIR ?? path.resolve(process.cwd(), "../web/dist");
+const PUBLIC_SOUNDS_DIR =
+  process.env.SOUNDS_DIR ?? path.resolve(process.cwd(), "../web/public/sounds");
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
+// Serve sound files directly from apps/web/public/sounds so dropping
+// a new MP3 is live without a vite rebuild. Mounted before the SPA
+// catch-all so /sounds/* resolves to real files (or 404) instead of
+// returning index.html.
+if (existsSync(PUBLIC_SOUNDS_DIR)) {
+  app.use("/sounds", express.static(PUBLIC_SOUNDS_DIR));
+}
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
@@ -31,7 +40,12 @@ app.use("/api/admin", adminRouter);
 const serveStatic = existsSync(STATIC_DIR);
 if (serveStatic) {
   app.use(express.static(STATIC_DIR));
-  app.get("*", (_req, res) => {
+  app.get("*", (req, res) => {
+    // SPA fallback only for path-style routes. A path with an extension
+    // (e.g. /sounds/correct.mp3) that didn't match a real file should
+    // 404, not return index.html — otherwise the browser tries to
+    // decode HTML as audio and logs a noisy error.
+    if (req.path.includes(".")) return res.sendStatus(404);
     res.sendFile(path.resolve(STATIC_DIR, "index.html"));
   });
 }
