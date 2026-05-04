@@ -26,6 +26,7 @@ model Kid {
   lastName        String
   username        String   @unique // short identifier the kid picks, may include emoji
   avatarPath      String?  // relative path to uploaded/customized photo
+  avatarEmoji     String?  // optional emoji avatar; only used when avatarPath is null
   grade           Int      // current grade level (e.g. 3 for a kid working at 3rd grade)
   sessionMinutes  Int      @default(12) // target session length
   weeklyGoal      Int      @default(3)  // target sessions per week — kid aims to do at least this many sessions per week

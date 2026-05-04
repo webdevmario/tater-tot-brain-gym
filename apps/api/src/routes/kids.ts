@@ -27,6 +27,7 @@ const CreateKidSchema = z.object({
   firstName: z.string().min(1).max(50),
   lastName: z.string().min(1).max(50),
   username: z.string().min(1).max(40),
+  avatarEmoji: z.string().max(8).nullable().optional(),
   grade: z.number().int().min(0).max(12),
   sessionMinutes: z.number().int().min(5).max(60).optional(),
   weeklyGoal: z.number().int().min(1).max(14).optional(),
@@ -63,11 +64,31 @@ router.put("/:id", async (req, res) => {
   const parsed = CreateKidSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.format() });
 
-  const kid = await prisma.kid.update({
-    where: { id: req.params.id },
-    data: parsed.data,
-  });
-  res.json(kid);
+  // When admin sets an emoji, also clear the photo path so the emoji
+  // actually renders (photo wins on render). Setting avatarEmoji to
+  // null is the inverse: explicitly removing emoji, photo (if any)
+  // is left alone.
+  const data: Record<string, unknown> = { ...parsed.data };
+  if (
+    data.avatarEmoji !== undefined &&
+    data.avatarEmoji !== null &&
+    data.avatarEmoji !== ""
+  ) {
+    data.avatarPath = null;
+  }
+
+  try {
+    const kid = await prisma.kid.update({
+      where: { id: req.params.id },
+      data,
+    });
+    res.json(kid);
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === "P2025") {
+      return res.status(404).json({ error: "Kid not found" });
+    }
+    throw err;
+  }
 });
 
 router.delete("/:id", async (req, res) => {

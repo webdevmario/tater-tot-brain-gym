@@ -2,6 +2,21 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Kid, type Pack } from "../../lib/api";
 import { getCache, setCache } from "../../lib/cache";
+import KidAvatar from "../../components/KidAvatar";
+
+// Curated kid-friendly emoji set for the avatar picker. Roughly one
+// row per category. The "type your own" input below the grid lets a
+// kid pick anything outside this list (compound emoji like 🦸‍♀️ are
+// fine — the maxLength={6} input handles ZWJ sequences up to ~16
+// codepoints in practice).
+const AVATAR_EMOJIS = [
+  "🦊", "🐶", "🐱", "🐼", "🦁", "🐯", "🐻", "🐰", "🐧", "🐸",
+  "🐵", "🐢", "🐝", "🦋", "🦄", "🐙", "🐳", "🦖", "🐉", "🦅",
+  "🍕", "🍔", "🍦", "🍩", "🍪", "🍓", "🥕", "🍎", "🍌", "🥑",
+  "⭐", "🌟", "⚡", "🔥", "🌈", "☀️", "🌙", "❄️", "⚽", "🏀",
+  "🎾", "🚀", "🎨", "🎮", "🎵", "🎯", "🎲", "🧩", "🦸", "🥷",
+];
+
 
 export default function AdminKids() {
   const [kids, setKids] = useState<Kid[] | null>(getCache<Kid[]>("kids") ?? null);
@@ -42,13 +57,7 @@ export default function AdminKids() {
       <div className="grid gap-4">
         {kids?.map((kid) => (
           <div key={kid.id} className="card flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-spud-100 flex items-center justify-center text-2xl overflow-hidden border-2 border-teal-200 shrink-0">
-              {kid.avatarPath ? (
-                <img src={kid.avatarPath} alt={kid.username} className="w-full h-full object-cover" />
-              ) : (
-                "🥔"
-              )}
-            </div>
+            <KidAvatar kid={kid} className="shrink-0 w-16 h-16" emojiClassName="text-2xl" />
             <div className="flex-1 min-w-0">
               <h3 className="font-display font-bold text-xl text-teal-500 truncate">
                 {kid.firstName} {kid.lastName}
@@ -117,6 +126,7 @@ function KidForm({
     firstName: kid?.firstName ?? "",
     lastName: kid?.lastName ?? "",
     username: kid?.username ?? "",
+    avatarEmoji: kid?.avatarEmoji ?? "",
     grade: kid?.grade ?? 2,
     sessionMinutes: kid?.sessionMinutes ?? 12,
     weeklyGoal: kid?.weeklyGoal ?? 3,
@@ -198,8 +208,8 @@ function KidForm({
 
   return (
     <div className="fixed inset-0 bg-teal-600/40 backdrop-blur-sm flex items-center justify-center p-4 z-20">
-      <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
+      <div className="card max-w-2xl w-full max-h-[90vh] flex flex-col">
+        <div className="shrink-0 flex items-center justify-between mb-4">
           <h2 className="text-2xl font-display font-bold text-teal-500">
             {kid ? "Edit Kid" : "Add Kid"}
           </h2>
@@ -213,12 +223,13 @@ function KidForm({
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-coral-400/10 text-coral-500 text-sm">
+          <div className="shrink-0 mb-4 p-3 rounded-xl bg-coral-400/10 text-coral-500 text-sm">
             {error}
           </div>
         )}
 
-        <form onSubmit={save} className="space-y-4">
+        <form onSubmit={save} className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-1">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="label">First name</label>
@@ -291,40 +302,88 @@ function KidForm({
             </div>
           </div>
 
-          {kid && (
-            <div>
-              <label className="label">Avatar photo</label>
-              <div className="flex items-center gap-3 flex-wrap">
-                {kid.avatarPath ? (
-                  <img
-                    src={kid.avatarPath}
-                    alt="current"
-                    className="w-20 h-20 rounded-xl object-cover border-2 border-teal-200 shrink-0"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded-xl bg-spud-100 border-2 border-teal-200 flex items-center justify-center text-3xl shrink-0">
-                    🥔
+          <div>
+            <label className="label">Avatar</label>
+            <div className="flex items-start gap-4 flex-wrap">
+              <KidAvatar
+                kid={{
+                  avatarPath: kid?.avatarPath ?? null,
+                  avatarEmoji: form.avatarEmoji || null,
+                  username: form.username,
+                }}
+                className="shrink-0 w-20 h-20"
+                emojiClassName="text-3xl"
+              />
+              <div className="flex-1 min-w-[220px] space-y-3">
+                <div>
+                  <p className="text-xs text-teal-400 mb-2">Pick an emoji</p>
+                  <div className="grid grid-cols-8 sm:grid-cols-10 gap-1">
+                    {AVATAR_EMOJIS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() =>
+                          setForm({
+                            ...form,
+                            avatarEmoji: form.avatarEmoji === emoji ? "" : emoji,
+                          })
+                        }
+                        className={`w-9 h-9 rounded-lg text-xl leading-none transition ${
+                          form.avatarEmoji === emoji
+                            ? "bg-teal-300 ring-2 ring-teal-500"
+                            : "bg-cream-100 hover:bg-cream-200"
+                        }`}
+                        aria-label={emoji}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
                   </div>
-                )}
-                <div className="flex flex-col gap-2">
+                </div>
+                <div className="flex gap-2 items-center">
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={uploadAvatar}
-                    disabled={uploading}
-                    className="block text-sm text-teal-500"
+                    type="text"
+                    maxLength={6}
+                    value={form.avatarEmoji}
+                    onChange={(e) => setForm({ ...form, avatarEmoji: e.target.value })}
+                    placeholder="…or type one"
+                    className="input flex-1 !py-2"
                   />
-                  {kid.avatarPath && (
+                  {form.avatarEmoji && (
                     <button
                       type="button"
-                      onClick={removeAvatar}
-                      disabled={uploading}
-                      className="text-sm text-coral-500 hover:underline self-start"
+                      onClick={() => setForm({ ...form, avatarEmoji: "" })}
+                      className="text-sm text-coral-500 hover:underline shrink-0"
                     >
-                      Remove photo
+                      Clear
                     </button>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {kid && (
+            <div className="border-t-2 border-cream-100 pt-4">
+              <label className="label">Photo (overrides emoji)</label>
+              <div className="flex items-center gap-3 flex-wrap">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={uploadAvatar}
+                  disabled={uploading}
+                  className="block text-sm text-teal-500"
+                />
+                {kid.avatarPath && (
+                  <button
+                    type="button"
+                    onClick={removeAvatar}
+                    disabled={uploading}
+                    className="text-sm text-coral-500 hover:underline"
+                  >
+                    Remove photo
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -359,7 +418,8 @@ function KidForm({
             )}
           </div>
 
-          <div className="flex gap-3 pt-4">
+          </div>
+          <div className="shrink-0 flex gap-3 pt-4 mt-4 border-t-2 border-cream-100">
             <button type="submit" className="btn-primary flex-1">
               Save
             </button>

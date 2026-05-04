@@ -37,6 +37,7 @@ export type Kid = {
   lastName: string;
   username: string;
   avatarPath: string | null;
+  avatarEmoji: string | null;
   grade: number;
   sessionMinutes: number;
   weeklyGoal: number;

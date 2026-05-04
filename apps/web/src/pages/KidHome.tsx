@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, type Kid, type Session } from "../lib/api";
+import KidAvatar from "../components/KidAvatar";
 
 export default function KidHome() {
   const { kidId } = useParams();
@@ -38,13 +39,7 @@ export default function KidHome() {
       </Link>
 
       <div className="card mb-8 flex items-center gap-6">
-        <div className="shrink-0 w-28 h-28 rounded-2xl bg-spud-100 flex items-center justify-center text-6xl overflow-hidden border-2 border-teal-200">
-          {kid.avatarPath ? (
-            <img src={kid.avatarPath} alt={kid.username} className="w-full h-full object-cover" />
-          ) : (
-            <span>🥔</span>
-          )}
-        </div>
+        <KidAvatar kid={kid} className="shrink-0 w-28 h-28" emojiClassName="text-6xl" />
         <div className="min-w-0 flex-1">
           <h1 className="text-5xl font-display font-bold text-teal-500 truncate">
             Hi, {kid.firstName}!

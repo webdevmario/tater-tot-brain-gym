@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Kid } from "../lib/api";
+import KidAvatar from "../components/KidAvatar";
 
 export default function Home() {
   const [kids, setKids] = useState<Kid[] | null>(null);
@@ -55,17 +56,7 @@ export default function Home() {
               to={`/kid/${kid.id}`}
               className="card hover:scale-105 transition-transform flex items-center gap-6 group"
             >
-              <div className="shrink-0 w-20 h-20 rounded-2xl bg-spud-100 flex items-center justify-center text-4xl overflow-hidden border-2 border-teal-200">
-                {kid.avatarPath ? (
-                  <img
-                    src={kid.avatarPath}
-                    alt={kid.username}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>🥔</span>
-                )}
-              </div>
+              <KidAvatar kid={kid} className="shrink-0 w-20 h-20" emojiClassName="text-4xl" />
               <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-display font-semibold text-teal-500 group-hover:text-teal-400 truncate">
                   @{kid.username}

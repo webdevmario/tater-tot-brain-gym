@@ -74,18 +74,25 @@ export async function pickNextItem(kidId: string, recentItemIds: string[]) {
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  // 3. Everything is either mastered or recently shown. Cycle through mastered items
-  //    for light maintenance review.
-  const maintenanceReview = await prisma.reviewState.findFirst({
+  // 3. Nothing strictly due and no new items. Fall back to whatever's
+  //    closest to being due in the enabled packs — non-mastered items
+  //    first, then mastered for maintenance review. Without this, a
+  //    kid who finishes all of their items in a session and then
+  //    starts a new one immediately gets "Workout complete" because
+  //    every item is technically scheduled in the future. Keep them
+  //    drilling instead.
+  const fallback = await prisma.reviewState.findFirst({
     where: {
       kidId,
-      masteredAt: { not: null },
       itemId: { notIn: excludeIds },
       item: { packId: { in: enabledPackIds } },
     },
     include: { item: true },
-    orderBy: { nextReviewAt: "asc" },
+    orderBy: [
+      { masteredAt: "asc" }, // null (not mastered) sorts first in SQLite ASC
+      { nextReviewAt: "asc" },
+    ],
   });
 
-  return maintenanceReview?.item ?? null;
+  return fallback?.item ?? null;
 }
