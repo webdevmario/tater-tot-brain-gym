@@ -45,11 +45,11 @@ export default function KidHome() {
             <span>🥔</span>
           )}
         </div>
-        <div>
-          <h1 className="text-5xl font-display font-bold text-teal-500">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-5xl font-display font-bold text-teal-500 truncate">
             Hi, {kid.firstName}!
           </h1>
-          <p className="text-teal-400 mt-2 text-lg">
+          <p className="text-teal-400 mt-2 text-lg truncate">
             @{kid.username} · Grade {kid.grade} · {enabledCount} pack{enabledCount === 1 ? "" : "s"} ready
           </p>
         </div>

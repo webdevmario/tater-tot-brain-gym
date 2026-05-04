@@ -66,11 +66,11 @@ export default function Home() {
                   <span>🥔</span>
                 )}
               </div>
-              <div className="flex-1">
-                <h2 className="text-3xl font-display font-semibold text-teal-500 group-hover:text-teal-400">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-3xl font-display font-semibold text-teal-500 group-hover:text-teal-400 truncate">
                   @{kid.username}
                 </h2>
-                <p className="text-teal-400 mt-1">
+                <p className="text-teal-400 mt-1 truncate">
                   {kid.firstName} {kid.lastName} · Grade {kid.grade}
                 </p>
               </div>

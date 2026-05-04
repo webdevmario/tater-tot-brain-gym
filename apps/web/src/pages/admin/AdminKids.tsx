@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Kid, type Pack } from "../../lib/api";
+import { getCache, setCache } from "../../lib/cache";
 
 export default function AdminKids() {
-  const [kids, setKids] = useState<Kid[] | null>(null);
-  const [packs, setPacks] = useState<Pack[] | null>(null);
+  const [kids, setKids] = useState<Kid[] | null>(getCache<Kid[]>("kids") ?? null);
+  const [packs, setPacks] = useState<Pack[] | null>(getCache<Pack[]>("packs") ?? null);
   const [editing, setEditing] = useState<Kid | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -18,7 +19,9 @@ export default function AdminKids() {
       api.get<Pack[]>("/api/packs"),
     ]);
     setKids(k);
+    setCache("kids", k);
     setPacks(p);
+    setCache("packs", p);
   }
 
   async function deleteKid(id: string) {
@@ -47,11 +50,11 @@ export default function AdminKids() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-display font-bold text-xl text-teal-500">
+              <h3 className="font-display font-bold text-xl text-teal-500 truncate">
                 {kid.firstName} {kid.lastName}
                 <span className="ml-2 text-base font-normal text-teal-400">@{kid.username}</span>
               </h3>
-              <p className="text-sm text-teal-400">
+              <p className="text-sm text-teal-400 truncate">
                 Grade {kid.grade} · {kid.sessionMinutes} min sessions · {kid.weeklyGoal}×/week
               </p>
             </div>

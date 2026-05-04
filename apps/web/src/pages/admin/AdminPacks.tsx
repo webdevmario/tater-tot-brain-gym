@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Pack } from "../../lib/api";
+import { getCache, setCache } from "../../lib/cache";
 
 export default function AdminPacks() {
-  const [packs, setPacks] = useState<Pack[] | null>(null);
+  const [packs, setPacks] = useState<Pack[] | null>(getCache<Pack[]>("packs") ?? null);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,6 +15,7 @@ export default function AdminPacks() {
   async function refresh() {
     const data = await api.get<Pack[]>("/api/packs");
     setPacks(data);
+    setCache("packs", data);
   }
 
   async function archive(id: string) {
