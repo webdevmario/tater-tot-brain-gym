@@ -24,7 +24,7 @@ model Kid {
   id              String   @id @default(cuid())
   firstName       String
   lastName        String
-  handle          String   @unique // short identifier, may include emoji
+  username        String   @unique // short identifier the kid picks, may include emoji
   avatarPath      String?  // relative path to uploaded/customized photo
   grade           Int      // current grade level (e.g. 3 for a kid working at 3rd grade)
   sessionMinutes  Int      @default(12) // target session length

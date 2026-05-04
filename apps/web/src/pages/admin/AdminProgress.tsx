@@ -47,7 +47,7 @@ export default function AdminProgress() {
         {kid.firstName} {kid.lastName}'s progress
       </h1>
       <p className="text-sm text-teal-400 mb-6">
-        @{kid.handle} · Grade {kid.grade} · {sessions.length} completed session{sessions.length === 1 ? "" : "s"}
+        @{kid.username} · Grade {kid.grade} · {sessions.length} completed session{sessions.length === 1 ? "" : "s"}
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

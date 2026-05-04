@@ -35,7 +35,7 @@ export type Kid = {
   id: string;
   firstName: string;
   lastName: string;
-  handle: string;
+  username: string;
   avatarPath: string | null;
   grade: number;
   sessionMinutes: number;

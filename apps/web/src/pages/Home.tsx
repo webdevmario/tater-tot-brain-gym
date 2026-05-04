@@ -59,7 +59,7 @@ export default function Home() {
                 {kid.avatarPath ? (
                   <img
                     src={kid.avatarPath}
-                    alt={kid.handle}
+                    alt={kid.username}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -68,7 +68,7 @@ export default function Home() {
               </div>
               <div className="flex-1">
                 <h2 className="text-3xl font-display font-semibold text-teal-500 group-hover:text-teal-400">
-                  @{kid.handle}
+                  @{kid.username}
                 </h2>
                 <p className="text-teal-400 mt-1">
                   {kid.firstName} {kid.lastName} · Grade {kid.grade}

@@ -41,7 +41,7 @@ export default function AdminKids() {
           <div key={kid.id} className="card flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-spud-100 flex items-center justify-center text-2xl overflow-hidden border-2 border-teal-200 shrink-0">
               {kid.avatarPath ? (
-                <img src={kid.avatarPath} alt={kid.handle} className="w-full h-full object-cover" />
+                <img src={kid.avatarPath} alt={kid.username} className="w-full h-full object-cover" />
               ) : (
                 "🥔"
               )}
@@ -49,7 +49,7 @@ export default function AdminKids() {
             <div className="flex-1 min-w-0">
               <h3 className="font-display font-bold text-xl text-teal-500">
                 {kid.firstName} {kid.lastName}
-                <span className="ml-2 text-base font-normal text-teal-400">@{kid.handle}</span>
+                <span className="ml-2 text-base font-normal text-teal-400">@{kid.username}</span>
               </h3>
               <p className="text-sm text-teal-400">
                 Grade {kid.grade} · {kid.sessionMinutes} min sessions · {kid.weeklyGoal}×/week
@@ -108,7 +108,7 @@ function KidForm({
   const [form, setForm] = useState({
     firstName: kid?.firstName ?? "",
     lastName: kid?.lastName ?? "",
-    handle: kid?.handle ?? "",
+    username: kid?.username ?? "",
     grade: kid?.grade ?? 2,
     sessionMinutes: kid?.sessionMinutes ?? 12,
     weeklyGoal: kid?.weeklyGoal ?? 3,
@@ -215,11 +215,11 @@ function KidForm({
           </div>
 
           <div>
-            <label className="label">Handle (unique, can include emoji)</label>
+            <label className="label">Username (unique, can include emoji)</label>
             <input
               className="input"
-              value={form.handle}
-              onChange={(e) => setForm({ ...form, handle: e.target.value })}
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
               placeholder="e.g. roo, big-bear, ⚡flash"
               required
             />

@@ -26,7 +26,7 @@ const upload = multer({
 const CreateKidSchema = z.object({
   firstName: z.string().min(1).max(50),
   lastName: z.string().min(1).max(50),
-  handle: z.string().min(1).max(40),
+  username: z.string().min(1).max(40),
   grade: z.number().int().min(0).max(12),
   sessionMinutes: z.number().int().min(5).max(60).optional(),
   weeklyGoal: z.number().int().min(1).max(14).optional(),
