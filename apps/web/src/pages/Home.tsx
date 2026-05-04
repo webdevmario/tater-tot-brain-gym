@@ -55,7 +55,7 @@ export default function Home() {
               to={`/kid/${kid.id}`}
               className="card hover:scale-105 transition-transform flex items-center gap-6 group"
             >
-              <div className="w-24 h-24 rounded-2xl bg-spud-100 flex items-center justify-center text-4xl overflow-hidden border-2 border-teal-200">
+              <div className="shrink-0 w-24 h-24 rounded-2xl bg-spud-100 flex items-center justify-center text-5xl overflow-hidden border-2 border-teal-200">
                 {kid.avatarPath ? (
                   <img
                     src={kid.avatarPath}

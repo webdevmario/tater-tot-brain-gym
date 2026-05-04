@@ -55,7 +55,7 @@ export default function AdminLayout() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-6 md:p-8">
+        <main className="flex-1 p-6 md:p-8 min-h-[calc(100vh-73px)]">
           <Outlet />
         </main>
       </div>

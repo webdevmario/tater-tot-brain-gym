@@ -38,7 +38,7 @@ export default function KidHome() {
       </Link>
 
       <div className="card mb-8 flex items-center gap-6">
-        <div className="w-28 h-28 rounded-2xl bg-spud-100 flex items-center justify-center text-5xl overflow-hidden border-2 border-teal-200">
+        <div className="shrink-0 w-28 h-28 rounded-2xl bg-spud-100 flex items-center justify-center text-6xl overflow-hidden border-2 border-teal-200">
           {kid.avatarPath ? (
             <img src={kid.avatarPath} alt={kid.username} className="w-full h-full object-cover" />
           ) : (

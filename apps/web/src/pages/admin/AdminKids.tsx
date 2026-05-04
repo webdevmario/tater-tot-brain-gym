@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { api, type Kid, type Pack } from "../../lib/api";
 
 export default function AdminKids() {
-  const [kids, setKids] = useState<Kid[]>([]);
-  const [packs, setPacks] = useState<Pack[]>([]);
+  const [kids, setKids] = useState<Kid[] | null>(null);
+  const [packs, setPacks] = useState<Pack[] | null>(null);
   const [editing, setEditing] = useState<Kid | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -37,7 +37,7 @@ export default function AdminKids() {
       </div>
 
       <div className="grid gap-4">
-        {kids.map((kid) => (
+        {kids?.map((kid) => (
           <div key={kid.id} className="card flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-spud-100 flex items-center justify-center text-2xl overflow-hidden border-2 border-teal-200 shrink-0">
               {kid.avatarPath ? (
@@ -74,7 +74,7 @@ export default function AdminKids() {
             </div>
           </div>
         ))}
-        {kids.length === 0 && (
+        {kids?.length === 0 && (
           <div className="card text-center text-teal-400">
             No kids yet. Click "Add kid" to create the first profile.
           </div>
@@ -84,7 +84,7 @@ export default function AdminKids() {
       {(editing || creating) && (
         <KidForm
           kid={editing}
-          packs={packs}
+          packs={packs ?? []}
           onClose={() => {
             setEditing(null);
             setCreating(false);

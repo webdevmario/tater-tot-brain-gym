@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { api, type Pack } from "../../lib/api";
 
 export default function AdminPacks() {
-  const [packs, setPacks] = useState<Pack[]>([]);
+  const [packs, setPacks] = useState<Pack[] | null>(null);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +69,7 @@ export default function AdminPacks() {
       )}
 
       <div className="grid gap-3">
-        {packs.map((pack) => (
+        {packs?.map((pack) => (
           <div key={pack.id} className="card flex items-center gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
               <h3 className="font-display font-bold text-xl text-teal-500">
@@ -103,7 +103,7 @@ export default function AdminPacks() {
             </div>
           </div>
         ))}
-        {packs.length === 0 && (
+        {packs?.length === 0 && (
           <div className="card text-center text-teal-400">
             No packs yet. Run <code>pnpm seed</code> to load starter packs, or import JSON.
           </div>
