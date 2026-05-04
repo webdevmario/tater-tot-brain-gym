@@ -18,7 +18,7 @@
     "prod:status": "launchctl list | grep com.tatertot.braingym || echo 'not loaded'",
     "prod:logs": "tail -n 200 -f /tmp/tatertot-braingym.log",
     "prod:errors": "tail -n 200 -f /tmp/tatertot-braingym-error.log",
-    "prod:deploy": "pnpm build && pnpm --filter @ttbg/api exec prisma migrate deploy && pnpm prod:restart"
+    "prod:deploy": "pnpm --filter @ttbg/api exec prisma migrate deploy && pnpm --filter @ttbg/api exec prisma generate && pnpm build && pnpm prod:restart"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
