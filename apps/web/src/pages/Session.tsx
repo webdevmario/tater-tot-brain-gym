@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type SessionItem } from "../lib/api";
+import { playSound } from "../lib/sounds";
 import MultipleChoice from "../components/questions/MultipleChoice";
 import TypeAnswer from "../components/questions/TypeAnswer";
 import SpellingBee from "../components/questions/SpellingBee";
@@ -106,6 +107,7 @@ export default function Session() {
         total: s.total + 1,
       }));
       setLastResult(result.correct ? "correct" : "wrong");
+      playSound(result.correct ? "correct" : "wrong");
 
       if (!result.correct && result.teachCard) {
         setTimeout(() => {
@@ -140,6 +142,7 @@ export default function Session() {
       );
       setStats((s) => ({ correct: s.correct, total: s.total + 1 }));
       setLastResult("wrong");
+      playSound("wrong");
       setTimeout(() => {
         setTeachCard(result.teachCard);
         setSubmitting(false);
@@ -153,6 +156,7 @@ export default function Session() {
   async function finishSession() {
     if (!sessionId) return;
     setDone(true);
+    playSound("session-end");
     try {
       await api.patch(`/api/sessions/${sessionId}`, {});
     } catch {
