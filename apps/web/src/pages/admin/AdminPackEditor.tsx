@@ -176,8 +176,12 @@ function ItemEditor({
     <div className="fixed inset-0 bg-teal-600/40 backdrop-blur-sm flex items-center justify-center p-4 z-20">
       <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-display font-bold text-teal-500">Edit item</h2>
-          <button onClick={onClose} className="text-teal-400 hover:text-teal-500">
+          <h2 className="text-2xl font-display font-bold text-teal-500">Edit Item</h2>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="w-10 h-10 flex items-center justify-center text-3xl leading-none text-teal-400 hover:text-teal-500 hover:bg-cream-100 rounded-lg transition"
+          >
             ✕
           </button>
         </div>

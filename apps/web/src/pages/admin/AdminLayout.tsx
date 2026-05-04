@@ -23,11 +23,10 @@ export default function AdminLayout() {
         : "text-teal-400 hover:bg-cream-100"
     }`;
 
-  // h-screen shell with overflow-hidden on the outer wrapper so the
-  // page itself never scrolls. Only <main> has overflow-y-auto, so a
-  // tall page (Packs) gets a scrollbar inside the content area, while
-  // the header and sidebar stay put. Switching sections doesn't shift
-  // anything horizontally regardless of scrollbar style.
+  // h-screen shell. The page never scrolls; only <main> has
+  // overflow-y-auto. <main> is full-width to the viewport so its
+  // scrollbar sits at the far right edge, and the content inside is
+  // centered with max-w-7xl. Header and sidebar stay locked.
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <header className="shrink-0 border-b-2 border-teal-100 bg-white/80 backdrop-blur px-6 py-4 flex items-center justify-between">
@@ -45,7 +44,7 @@ export default function AdminLayout() {
         </button>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <aside className="shrink-0 md:w-60 p-4 md:border-r-2 border-teal-100 overflow-y-auto">
           <nav className="space-y-2">
             <NavLink to="/admin/kids" className={({ isActive }) => navItemClass(isActive)}>
@@ -60,8 +59,10 @@ export default function AdminLayout() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto p-6 md:p-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
