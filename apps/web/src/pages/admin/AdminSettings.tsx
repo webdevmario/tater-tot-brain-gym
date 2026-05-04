@@ -48,7 +48,7 @@ export default function AdminSettings() {
             <input
               type="password"
               inputMode="numeric"
-              className="input"
+              className="input !text-2xl !py-4 !text-center tracking-widest"
               value={oldPin}
               onChange={(e) => setOldPin(e.target.value)}
               required
@@ -59,7 +59,7 @@ export default function AdminSettings() {
             <input
               type="password"
               inputMode="numeric"
-              className="input"
+              className="input !text-2xl !py-4 !text-center tracking-widest"
               value={newPin}
               onChange={(e) => setNewPin(e.target.value)}
               required
@@ -70,7 +70,7 @@ export default function AdminSettings() {
             <input
               type="password"
               inputMode="numeric"
-              className="input"
+              className="input !text-2xl !py-4 !text-center tracking-widest"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               required
@@ -87,7 +87,7 @@ export default function AdminSettings() {
         <p className="text-sm text-teal-500 mb-2">
           Run this from the repo root to reset:
         </p>
-        <pre className="bg-teal-600 text-cream-50 p-3 rounded-lg text-xs overflow-x-auto">
+        <pre className="bg-teal-600 text-cream-50 p-3 rounded-lg text-xs whitespace-pre-wrap break-words">
 {`pnpm db:studio
 # Delete the row in AppSetting where key = 'admin-pin'
 # Next time you open /admin, you'll be prompted to set a new one.`}

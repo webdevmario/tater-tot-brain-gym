@@ -78,7 +78,7 @@ export default function AdminGate() {
               <input
                 type="password"
                 inputMode="numeric"
-                className="input"
+                className="input !text-2xl !py-4 !text-center tracking-widest"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 autoFocus
@@ -89,7 +89,7 @@ export default function AdminGate() {
               <input
                 type="password"
                 inputMode="numeric"
-                className="input"
+                className="input !text-2xl !py-4 !text-center tracking-widest"
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(e.target.value)}
               />
@@ -107,7 +107,7 @@ export default function AdminGate() {
               <input
                 type="password"
                 inputMode="numeric"
-                className="input"
+                className="input !text-2xl !py-4 !text-center tracking-widest"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 autoFocus

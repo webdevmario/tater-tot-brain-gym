@@ -86,6 +86,24 @@ router.post("/:id/avatar", upload.single("avatar"), async (req, res) => {
   res.json(kid);
 });
 
+router.delete("/:id/avatar", async (req, res) => {
+  // Best-effort: drop the row's avatar pointer; leave the file on
+  // disk. Cleaning up orphaned avatar files is a separate batch
+  // concern (worth doing, but not on every deletion).
+  try {
+    const kid = await prisma.kid.update({
+      where: { id: req.params.id },
+      data: { avatarPath: null },
+    });
+    res.json(kid);
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === "P2025") {
+      return res.status(404).json({ error: "Kid not found" });
+    }
+    throw err;
+  }
+});
+
 router.post("/:id/packs/:packId", async (req, res) => {
   const { enabled } = req.body as { enabled: boolean };
   const kp = await prisma.kidPack.upsert({

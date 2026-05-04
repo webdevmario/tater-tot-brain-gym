@@ -63,7 +63,12 @@ export default function AdminKids() {
                 Progress
               </Link>
               <button
-                onClick={() => setEditing(kid)}
+                onClick={async () => {
+                  // Refetch with enabledPacks so the form shows
+                  // currently-selected packs as checked.
+                  const full = await api.get<Kid>(`/api/kids/${kid.id}`);
+                  setEditing(full);
+                }}
                 className="btn-secondary !py-2 !px-3 text-sm"
               >
                 Edit
@@ -160,6 +165,20 @@ function KidForm({
     fd.append("avatar", file);
     try {
       await api.upload(`/api/kids/${kid.id}/avatar`, fd);
+      onClose();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function removeAvatar() {
+    if (!kid) return;
+    if (!confirm("Remove this kid's avatar photo?")) return;
+    setUploading(true);
+    try {
+      await api.delete<Kid>(`/api/kids/${kid.id}/avatar`);
       onClose();
     } catch (err) {
       setError((err as Error).message);
@@ -275,20 +294,38 @@ function KidForm({
           {kid && (
             <div>
               <label className="label">Avatar photo</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={uploadAvatar}
-                disabled={uploading}
-                className="block text-sm text-teal-500"
-              />
-              {kid.avatarPath && (
-                <img
-                  src={kid.avatarPath}
-                  alt="current"
-                  className="w-20 h-20 rounded-xl object-cover mt-2 border-2 border-teal-200"
-                />
-              )}
+              <div className="flex items-center gap-3 flex-wrap">
+                {kid.avatarPath ? (
+                  <img
+                    src={kid.avatarPath}
+                    alt="current"
+                    className="w-20 h-20 rounded-xl object-cover border-2 border-teal-200 shrink-0"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-xl bg-spud-100 border-2 border-teal-200 flex items-center justify-center text-3xl shrink-0">
+                    🥔
+                  </div>
+                )}
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={uploadAvatar}
+                    disabled={uploading}
+                    className="block text-sm text-teal-500"
+                  />
+                  {kid.avatarPath && (
+                    <button
+                      type="button"
+                      onClick={removeAvatar}
+                      disabled={uploading}
+                      className="text-sm text-coral-500 hover:underline self-start"
+                    >
+                      Remove photo
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

@@ -50,6 +50,20 @@ if (serveStatic) {
   });
 }
 
+// Global error handler — without this, an unhandled rejection from a
+// route (e.g. prisma.kid.update on a missing id) crashes the process,
+// launchd restart-loops, and eventually backs off entirely. Map the
+// common Prisma "record not found" code to a 404; everything else to
+// 500 with a generic message.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (err?.code === "P2025") {
+    return res.status(404).json({ error: "Not found" });
+  }
+  console.error("[unhandled]", err?.message ?? err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
 app.listen(PORT, HOST, () => {
   const bound = HOST === "0.0.0.0" ? "all interfaces" : HOST;
   console.log(`\n🧠 Tater Tot Brain Gym API listening on :${PORT} (${bound})`);
@@ -61,6 +75,15 @@ app.listen(PORT, HOST, () => {
     console.log(`   Web:      no build present — Vite dev server expected on :5173`);
   }
   console.log();
+});
+
+// Safety net: Express 4 does not surface rejected promises from async
+// route handlers, so an uncaught error becomes an unhandledRejection
+// and Node 17+ crashes the process by default. Log and keep the
+// server alive instead. Routes that need specific error responses
+// should still try/catch and respond.
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
 });
 
 process.on("SIGINT", async () => {
