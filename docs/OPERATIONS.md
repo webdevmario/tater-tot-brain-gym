@@ -201,14 +201,16 @@ your tailnet:
 
 ```bash
 # One time: enable HTTPS certificates in the Tailscale admin
-# (DNS → HTTPS Certificates → Enable), then on the Mac:
-tailscale serve --bg 4000
-tailscale serve status   # shows https://<mac-name>.tail-xxxx.ts.net
+# (DNS → HTTPS Certificates → Enable), then on the Mac.
+# Port 443 is already used by another app on this Mac, so Brain Gym
+# gets its own HTTPS port (8446):
+tailscale serve --bg --https=8446 http://127.0.0.1:4000
+tailscale serve status   # lists every app's HTTPS port
 ```
 
-The kids' iPads then use `https://<mac-name>.tail-xxxx.ts.net` (no
-port). `--bg` keeps it running across reboots. To undo:
-`tailscale serve --https=443 off`.
+Current setup: **https://shady-mac-mini.taila545c3.ts.net:8446**.
+`--bg` keeps it running across reboots. To undo:
+`tailscale serve --https=8446 off`.
 
 If you previously added the `http://...:4000` version to a Home Screen,
 delete that icon and add the HTTPS one; they're separate apps to iPadOS.
