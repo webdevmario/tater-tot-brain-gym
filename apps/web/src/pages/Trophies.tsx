@@ -3,7 +3,7 @@ import type { KidProgress } from "../lib/api";
 import { useCachedGet } from "../lib/cache";
 import { Bone, ListSkeleton } from "../components/Loading";
 import BadgeTile from "../components/BadgeTile";
-import RankMedal from "../components/RankMedal";
+import LevelBadge from "../components/LevelBadge";
 
 // Every badge and every level on the ladder, so kids can see the whole
 // road ahead and where they are on it.
@@ -59,7 +59,7 @@ export default function Trophies() {
                 key={l.level}
                 className={`flex flex-col items-center rounded-2xl py-3 px-1 ${current ? "bg-cream-100" : ""}`}
               >
-                <RankMedal level={l.level} color={data.theme.accent} dim={!reached} size="md" />
+                <LevelBadge level={l.level} color={data.theme.accent} shade={data.theme.shade} dim={!reached} size="md" />
                 <p className={`mt-2 text-xs ${reached ? "text-teal-500" : "text-teal-300"}`}>
                   {l.minXp.toLocaleString()} XP
                 </p>

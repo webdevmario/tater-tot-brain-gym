@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FinishResult, Theme } from "../lib/api";
 import { playSound } from "../lib/sounds";
 import { confetti } from "../lib/confetti";
-import RankMedal from "./RankMedal";
+import LevelBadge from "./LevelBadge";
 import { Spinner } from "./Loading";
 import XpBar from "./XpBar";
 import WeekRing from "./WeekRing";
@@ -68,7 +68,7 @@ export default function FinishScreen({ result, cleared = false, theme, onAgain, 
   return (
     <div className="safe-page min-h-[100dvh] max-w-3xl mx-auto flex flex-col items-center text-center">
       <div className="mt-6 animate-pop-in">
-        <RankMedal level={rank.level} color={accent} size="xl" />
+        <LevelBadge level={rank.level} color={accent} shade={theme?.shade} size={rankUp ? "xl" : "lg"} />
       </div>
       <h1 className="mt-5 text-5xl font-display font-bold text-teal-500 text-balance">{headline}</h1>
       {cleared && (

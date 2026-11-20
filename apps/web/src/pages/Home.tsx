@@ -3,7 +3,7 @@ import type { Kid } from "../lib/api";
 import { useCachedGet } from "../lib/cache";
 import { KidCardsSkeleton } from "../components/Loading";
 import KidAvatar from "../components/KidAvatar";
-import RankMedal from "../components/RankMedal";
+import LevelBadge from "../components/LevelBadge";
 import { DEFAULT_THEME, themeSurface } from "../lib/theme";
 
 export default function Home() {
@@ -81,7 +81,7 @@ export default function Home() {
               )}
               {kid.summary && (
                 <div className="flex items-center gap-2 text-teal-500">
-                  <RankMedal level={kid.summary.rank.level} color={theme.accent} size="sm" />
+                  <LevelBadge level={kid.summary.rank.level} color={theme.accent} shade={theme.shade} size="sm" />
                   <span className="font-display font-semibold">Level {kid.summary.rank.level}</span>
                   {kid.summary.streak > 0 && (
                     <span

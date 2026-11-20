@@ -4,7 +4,7 @@ import { api, type KidProgress, type PackProgress, type Session } from "../lib/a
 import { useCachedGet } from "../lib/cache";
 import { KidHomeSkeleton, Spinner } from "../components/Loading";
 import KidAvatar from "../components/KidAvatar";
-import RankMedal from "../components/RankMedal";
+import LevelBadge from "../components/LevelBadge";
 import XpBar from "../components/XpBar";
 import WeekRing from "../components/WeekRing";
 import BadgeTile from "../components/BadgeTile";
@@ -49,6 +49,7 @@ export default function KidHome() {
   const { kid, rank, week, packs, badges, stats, theme } = data;
   const toNext = rank.next.minXp - data.totalXp;
   const earned = badges.filter((b) => b.earnedAt);
+  const titleBadge = kid.titleBadge ? badges.find((b) => b.code === kid.titleBadge) : undefined;
   // Closest badges to earning — something concrete to aim for.
   const upNext = badges
     .filter((b) => !b.earnedAt)
@@ -75,27 +76,47 @@ export default function KidHome() {
       </nav>
 
       <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr]">
-        {/* Level card: the one loud thing on this screen. */}
+        {/* Hero card: the one loud thing on this screen. Greeting first, title
+            second, level as a small badge in the corner. */}
         <section
-          className="relative overflow-hidden rounded-[2rem] p-6 sm:p-7 text-white"
+          className="relative overflow-hidden rounded-[2rem] p-6 sm:p-7 text-white flex flex-col justify-between gap-6"
           style={{ ...themeSurface(theme), boxShadow: `0 6px 0 0 ${theme.shade}` }}
         >
           <div className="flex items-center gap-4">
-            <Link to={`/kid/${kid.id}/style`} aria-label="Customize my profile">
+            <Link to={`/kid/${kid.id}/style`} aria-label="Customize my profile" className="shrink-0">
               <KidAvatar kid={kid} className="w-20 h-20 !rounded-full !border-4 !border-white/80 bg-white" emojiClassName="text-5xl" />
             </Link>
-            <div className="min-w-0">
-              <h1 className="text-4xl sm:text-5xl font-display font-bold truncate">Hi, {kid.firstName}!</h1>
-              {data.title && <p className="text-lg font-display font-semibold text-white/90">{data.title}</p>}
+            <div className="min-w-0 flex-1">
+              <h1 className="text-4xl sm:text-5xl font-display font-bold truncate leading-tight">Hi, {kid.firstName}!</h1>
+              {data.title ? (
+                <p className="mt-0.5 text-xl sm:text-2xl font-display font-semibold text-white/90 truncate">
+                  {titleBadge && (
+                    <span className="mr-1.5" aria-hidden>
+                      {titleBadge.emoji}
+                    </span>
+                  )}
+                  {data.title}
+                </p>
+              ) : earned.length > 0 ? (
+                <Link
+                  to={`/kid/${kid.id}/style`}
+                  className="mt-1.5 inline-block rounded-full bg-white/15 px-3 py-1 text-sm font-semibold text-white/85"
+                >
+                  Pick a title ›
+                </Link>
+              ) : (
+                <p className="mt-1 text-sm font-semibold text-white/70">Earn a trophy to get a title</p>
+              )}
+            </div>
+            <div className="shrink-0 self-start -mt-1 -mr-1 flex flex-col items-center">
+              <LevelBadge level={rank.level} color={theme.accent} shade={theme.shade} size="md" onColor />
+              <span className="mt-1 text-xs font-bold uppercase tracking-wider text-white/85" aria-hidden>
+                Level {rank.level}
+              </span>
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-5">
-            <RankMedal level={rank.level} color={theme.accent} size="lg" />
-            <p className="min-w-0 flex-1 text-4xl font-display font-bold leading-tight">Level {rank.level}</p>
-          </div>
-
-          <div className="mt-5">
+          <div>
             <XpBar value={rank.xpIntoRank} max={rank.xpForRank} color="#F9CC7A" className="!bg-white/25" />
             <p className="mt-2 text-white/90 font-semibold">
               {toNext} XP to Level {rank.next.level}

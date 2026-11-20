@@ -6,6 +6,7 @@ import { Bone } from "../components/Loading";
 import { themeSurface } from "../lib/theme";
 import { playSound } from "../lib/sounds";
 import KidAvatar from "../components/KidAvatar";
+import LevelBadge from "../components/LevelBadge";
 
 const AVATARS: Array<[string, string[]]> = [
   ["Animals", ["🦖", "🐉", "🦊", "🐼", "🐯", "🦁", "🐨", "🐸", "🦄", "🐙", "🦈", "🐬", "🦉", "🐺", "🐱", "🐶", "🐧", "🦋"]],
@@ -72,6 +73,7 @@ export default function Customize() {
 
   const { kid, theme, rank } = data;
   const earned = data.badges.filter((b) => b.earnedAt);
+  const titleBadge = kid.titleBadge ? data.badges.find((b) => b.code === kid.titleBadge) : undefined;
 
   return (
     <div className="safe-page min-h-[100dvh] max-w-4xl mx-auto pb-10">
@@ -90,12 +92,24 @@ export default function Customize() {
           style={{ borderColor: "rgba(255,255,255,.85)" }}
           emojiClassName="text-6xl"
         />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="text-4xl font-display font-bold truncate">{kid.firstName}</h1>
-          <p className="text-xl font-display font-semibold text-white/90 mt-1">
-            {data.title ?? `Level ${rank.level}`}
+          <p className="text-xl font-display font-semibold text-white/90 mt-1 truncate">
+            {data.title ? (
+              <>
+                {titleBadge && (
+                  <span className="mr-1.5" aria-hidden>
+                    {titleBadge.emoji}
+                  </span>
+                )}
+                {data.title}
+              </>
+            ) : (
+              <span className="text-white/60">No title yet</span>
+            )}
           </p>
         </div>
+        <LevelBadge level={rank.level} color={theme.accent} shade={theme.shade} size="md" onColor className="self-start" />
       </section>
 
       <h2 className="text-2xl font-display font-bold text-teal-500 mt-8 mb-3">My color</h2>
@@ -115,7 +129,7 @@ export default function Customize() {
       <h2 className="text-2xl font-display font-bold text-teal-500 mt-8 mb-1">My title</h2>
       <p className="text-teal-400 mb-3">Show off a trophy you've earned under your name.</p>
       <div className="flex flex-wrap gap-2">
-        <TitleChip label={`Level ${rank.level}`} hint="my level" selected={!kid.titleBadge} onPick={() => save({ titleBadge: null })} />
+        <TitleChip label="No title" selected={!kid.titleBadge} onPick={() => save({ titleBadge: null })} />
         {earned.map((b) => (
           <TitleChip
             key={b.code}
