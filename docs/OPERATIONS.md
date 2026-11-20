@@ -188,8 +188,30 @@ remove and re-add this device in the Tailscale admin.
    - Android: Play Store → Tailscale.
    - Mac: `brew install --cask tailscale` or App Store.
 2. Sign in with your Tailscale account (or an invited user).
-3. Open `http://<mac-name>.tail-xxxx.ts.net:4000` in the device's
-   browser. Bookmark / Add to Home Screen.
+3. Open the HTTPS address below in Safari, tap Share → **Add to Home
+   Screen**. It launches full-screen like a real app.
+
+### HTTPS for the iPad app (recommended)
+
+Brain Gym is an installable web app (PWA). Over plain `http://...:4000`
+it still installs to the Home Screen and runs full-screen, but iPadOS
+only enables the offline/instant-launch cache (service worker) over
+HTTPS. Tailscale can provide HTTPS with a real certificate, private to
+your tailnet:
+
+```bash
+# One time: enable HTTPS certificates in the Tailscale admin
+# (DNS → HTTPS Certificates → Enable), then on the Mac:
+tailscale serve --bg 4000
+tailscale serve status   # shows https://<mac-name>.tail-xxxx.ts.net
+```
+
+The kids' iPads then use `https://<mac-name>.tail-xxxx.ts.net` (no
+port). `--bg` keeps it running across reboots. To undo:
+`tailscale serve --https=443 off`.
+
+If you previously added the `http://...:4000` version to a Home Screen,
+delete that icon and add the HTTPS one; they're separate apps to iPadOS.
 
 ### Adding your wife
 

@@ -6,41 +6,43 @@ type TeachCardData = {
 
 type Props = {
   data: TeachCardData;
+  yourAnswer: string | null;
   onContinue: () => void;
 };
 
-export default function TeachCard({ data, onContinue }: Props) {
+// Shown after a miss. The tone is "here's how to remember it", never
+// "you got it wrong". The item comes back later so they can bounce back.
+export default function TeachCard({ data, yourAnswer, onContinue }: Props) {
   return (
-    <div className="card !bg-spud-50 !border-spud-200 space-y-4 animate-in fade-in">
-      <div className="flex items-start gap-3">
-        <div className="text-3xl">💡</div>
-        <div className="flex-1">
-          <p className="text-sm uppercase tracking-widest text-spud-500 font-bold mb-1">
-            Let's learn it
-          </p>
-          <p className="text-3xl font-display font-semibold text-teal-500">
-            {data.answer}
-          </p>
+    <div className="space-y-4">
+      <div className="flex items-start gap-4">
+        <div className="text-4xl" aria-hidden>
+          💡
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xl font-display font-semibold text-spud-500">Let's learn this one</p>
+          <p className="text-4xl font-display font-bold text-teal-600 mt-1 break-words">{data.answer}</p>
+          {yourAnswer && (
+            <p className="text-teal-400 mt-1">
+              You said <span className="line-through decoration-coral-400 decoration-2">{yourAnswer}</span>
+            </p>
+          )}
         </div>
       </div>
 
-      {data.context && (
-        <div className="pl-10">
-          <p className="text-teal-500 text-lg">{data.context}</p>
-        </div>
-      )}
+      {data.context && <p className="text-teal-500 text-lg pl-14">{data.context}</p>}
 
       {data.mnemonic && (
-        <div className="pl-10">
-          <p className="text-sm uppercase tracking-widest text-spud-500 font-bold mb-1">
-            Trick to remember
-          </p>
-          <p className="text-teal-500 italic">"{data.mnemonic}"</p>
+        <div className="ml-14 rounded-2xl bg-white/80 border border-spud-200 p-4">
+          <p className="font-semibold text-spud-500">Trick to remember</p>
+          <p className="text-teal-600 text-lg mt-1">{data.mnemonic}</p>
         </div>
       )}
 
-      <button onClick={onContinue} className="btn-primary w-full !text-xl !py-4">
-        Got it, next →
+      <p className="pl-14 text-teal-400">It'll come back later so you can get it right.</p>
+
+      <button onClick={onContinue} className="btn-primary w-full !text-2xl !py-5" autoFocus>
+        Got it
       </button>
     </div>
   );

@@ -57,15 +57,16 @@ export function computeReviewUpdate(
         masteredAt: null,
       };
 
-  // Quality score: 5 = correct and fast, 4 = correct but slow, 2 = wrong, 0 = timed out
+  // Quality score. Response time deliberately does NOT matter: the kid
+  // UI has no timers, and a slow-but-right answer is still right. Both
+  // 4 and 5 keep the ease factor at or above the mastery threshold.
+  //   5 = correct, 4 = correct after a long think (>20s), 2 = wrong, 0 = legacy timeout
   let quality: number;
   if (outcome.timedOut) {
     quality = 0;
   } else if (!outcome.correct) {
     quality = 2;
-  } else if (outcome.responseMs > 8000) {
-    quality = 3;
-  } else if (outcome.responseMs > 4000) {
+  } else if (outcome.responseMs > 20000) {
     quality = 4;
   } else {
     quality = 5;

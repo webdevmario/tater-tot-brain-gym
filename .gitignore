@@ -22,3 +22,6 @@ backups/
 # Editor
 .vscode/
 .idea/
+
+# TypeScript incremental build info
+*.tsbuildinfo

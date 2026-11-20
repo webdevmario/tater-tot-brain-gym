@@ -38,6 +38,39 @@ export default {
       boxShadow: {
         pop: "0 4px 0 0 rgba(15, 95, 95, 0.9)",
         popSm: "0 2px 0 0 rgba(15, 95, 95, 0.9)",
+        soft: "0 1px 0 0 rgba(10, 72, 72, 0.08), 0 8px 24px -12px rgba(10, 72, 72, 0.25)",
+      },
+      keyframes: {
+        "pop-in": {
+          "0%": { transform: "scale(0.6)", opacity: "0" },
+          "70%": { transform: "scale(1.08)", opacity: "1" },
+          "100%": { transform: "scale(1)" },
+        },
+        "rise": {
+          "0%": { transform: "translateY(12px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "float-up": {
+          "0%": { transform: "translateY(0)", opacity: "0" },
+          "15%": { opacity: "1" },
+          "100%": { transform: "translateY(-48px)", opacity: "0" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-6px)" },
+          "75%": { transform: "translateX(6px)" },
+        },
+        "sheet-up": {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "pop-in": "pop-in 420ms cubic-bezier(.2,.9,.3,1.2) both",
+        "rise": "rise 320ms ease-out both",
+        "float-up": "float-up 1100ms ease-out forwards",
+        "wiggle": "wiggle 300ms ease-in-out 2",
+        "sheet-up": "sheet-up 260ms cubic-bezier(.2,.9,.3,1) both",
       },
     },
   },

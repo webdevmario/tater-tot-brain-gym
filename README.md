@@ -12,14 +12,27 @@ subscriptions. Your data stays on your machine.
 ## What it is
 
 A "training gym" for facts and skills kids should know. Each kid picks
-their profile, picks a subject, and does a 10 to 15 minute session. The
-session mixes question types, tracks what they miss, and automatically
-pulls missed items back in later sessions using spaced repetition.
+their profile and does a short workout: a fixed round of questions
+(10 by default), either mixed from all their packs or focused on one.
+Missed items get a "let's learn it" card, come back later in the round,
+and keep coming back in future workouts via spaced repetition.
 
-It is not a game. It is a training tool with light game elements (XP,
-streaks, weekly badges, simple ranks). The goal is retention, not
-entertainment, though we want it engaging enough that kids will actually
-use it.
+**No timers anywhere.** There is no countdown, no speed scoring, and
+nothing to lose. Slow-and-right is right.
+
+It is not a game, but it borrows what makes good learning apps sticky:
+
+- **Lesson loop (Duolingo-style):** fixed-length rounds with a progress
+  bar, instant feedback, and a celebration screen at the end.
+- **XP and ranks:** 10 XP per correct answer, 2 XP for a wrong one
+  (trying counts), bonuses for finishing and for perfect rounds. XP
+  climbs a 10-step potato rank ladder (Seedling → Golden Spud, then
+  prestige stars).
+- **Weekly goal ring (Apple Fitness-style):** per-kid workouts-per-week
+  goal, plus a day streak that never shames when it resets.
+- **Trophies:** ~25 badges for workouts, facts learned and mastered,
+  streaks, perfect rounds, and "bouncing back" on missed facts. Locked
+  ones show progress so there is always a next thing to aim for.
 
 ## Who it's for
 
@@ -35,9 +48,11 @@ use it.
   bee (browser text-to-speech), math drill, matching
 - **Spaced repetition**: items you miss come back; items you master
   space out until they're retired from active review
-- **Teach-me cards**: when a kid misses or times out on an item, a short
-  card shows the answer, context, and a mnemonic if available, then
-  the item requeues later in the session
+- **Teach-me cards**: when a kid misses an item, a short card shows the
+  answer, context, and a mnemonic if available, then the item requeues
+  later in the session
+- **iPad-first**: installable to the Home Screen (PWA), big touch
+  targets, an on-screen number pad for math, and read-aloud buttons
 - **Per-grade item tagging**: each item is tagged by grade level
   independent of its pack, so a kid set to grade 3 sees mostly grade 3
   items with grade 2 mixed in for review
@@ -266,8 +281,10 @@ On each kid's device:
 
 1. Install Tailscale (App Store on iOS/iPadOS, Play Store on Android).
 2. Sign in with the same Tailscale account (or accept an invite).
-3. Open `http://<mac-name>.tail-xxxx.ts.net:4000` and "Add to Home
-   Screen" so it looks like an app.
+3. Open the Brain Gym address in Safari and tap Share → "Add to Home
+   Screen". For the full app experience (instant launch, offline shell)
+   serve it over HTTPS with `tailscale serve --bg 4000`; see
+   [docs/OPERATIONS.md](docs/OPERATIONS.md#https-for-the-ipad-app-recommended).
 
 ### Day-to-day production commands
 
@@ -312,20 +329,14 @@ determined adversary, and nothing in this app assumes it is.
 
 ---
 
-## What's not built yet
+## Status
 
-This README describes the target architecture. Current status:
+Working end to end: kid profiles, admin (packs, kids, progress), the
+session engine with spaced repetition, four question types (multiple
+choice, type-the-answer, spelling bee, math drill), progression (XP,
+ranks, streaks, weekly goal, trophies), and PWA install.
 
-- [x] Database schema (Prisma)
-- [x] Monorepo scaffolding
-- [x] Seed script
-- [ ] API routes (kids, packs, sessions, attempts)
-- [ ] Spaced repetition algorithm implementation
-- [ ] Web UI: kid picker, session player, admin mode
-- [ ] Avatar upload and customization
-- [ ] Starter pack content
-
-Features will be built in that order.
+Not built yet: the "matching" question type, avatar filters/stickers.
 
 ---
 

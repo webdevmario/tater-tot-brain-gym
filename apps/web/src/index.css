@@ -5,6 +5,11 @@
 @layer base {
   html {
     @apply bg-cream-50;
+    /* iPad: no double-tap zoom, no grey tap flash, no rubber-band bounce */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
   }
   body {
     @apply font-body text-teal-600 antialiased;
@@ -12,24 +17,36 @@
       radial-gradient(circle at 10% 10%, rgba(249, 204, 122, 0.12) 0%, transparent 40%),
       radial-gradient(circle at 90% 90%, rgba(124, 193, 193, 0.12) 0%, transparent 40%);
     background-attachment: fixed;
+    min-height: 100dvh;
   }
   h1, h2, h3, h4 {
     @apply font-display;
   }
+  button, a {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  :focus-visible {
+    @apply outline-none ring-4 ring-spud-300/70 ring-offset-2 ring-offset-cream-50;
+  }
 }
 
 @layer components {
+  /* Chunky, press-down buttons: the bottom edge collapses when tapped. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-display font-semibold transition-all active:translate-y-1 active:shadow-popSm disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-display font-semibold transition-[transform,box-shadow,background-color] duration-100 active:translate-y-1 active:shadow-none disabled:opacity-40 disabled:active:translate-y-0;
+    min-height: 48px;
   }
   .btn-primary {
     @apply btn bg-teal-400 text-cream-50 shadow-pop hover:bg-teal-500;
   }
   .btn-secondary {
-    @apply btn bg-cream-100 text-teal-500 shadow-popSm hover:bg-cream-200;
+    @apply btn bg-white text-teal-500 border-2 border-teal-100 shadow-popSm hover:bg-cream-100;
   }
   .btn-spud {
-    @apply btn bg-spud-300 text-teal-600 shadow-pop hover:bg-spud-400;
+    @apply btn bg-spud-300 text-teal-600 hover:bg-spud-400;
+    box-shadow: 0 4px 0 0 #C77315;
   }
   .btn-danger {
     @apply btn bg-coral-400 text-white shadow-popSm hover:bg-coral-500;
@@ -37,10 +54,20 @@
   .card {
     @apply rounded-3xl bg-white/80 backdrop-blur border-2 border-teal-100 p-6 shadow-popSm;
   }
+  .panel {
+    @apply rounded-3xl bg-white border border-teal-100 shadow-soft;
+  }
   .input {
     @apply w-full rounded-2xl border-2 border-teal-100 bg-white px-4 py-3 font-body text-lg text-teal-600 outline-none focus:border-teal-300;
   }
   .label {
     @apply block text-sm font-semibold uppercase tracking-wider text-teal-400 mb-1;
+  }
+  /* Respect the iPad home indicator / notch when installed full-screen. */
+  .safe-page {
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
   }
 }

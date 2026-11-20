@@ -16,14 +16,21 @@ import { prisma } from "../db.js";
 
 const RECENT_ITEM_COOLDOWN = 5; // don't re-show an item within the last N items
 
-export async function pickNextItem(kidId: string, recentItemIds: string[]) {
+export async function pickNextItem(
+  kidId: string,
+  recentItemIds: string[],
+  focusPackId: string | null = null
+) {
   const kid = await prisma.kid.findUnique({
     where: { id: kidId },
     include: { enabledPacks: { where: { enabled: true }, include: { pack: true } } },
   });
   if (!kid) throw new Error("Kid not found");
 
-  const enabledPackIds = kid.enabledPacks.map((kp) => kp.packId);
+  // A focused workout drills one pack; a mixed workout uses all enabled packs.
+  const enabledPackIds = kid.enabledPacks
+    .map((kp) => kp.packId)
+    .filter((id) => !focusPackId || id === focusPackId);
   if (enabledPackIds.length === 0) return null;
 
   const now = new Date();

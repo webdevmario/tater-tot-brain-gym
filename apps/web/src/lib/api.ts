@@ -40,8 +40,72 @@ export type Kid = {
   avatarEmoji: string | null;
   grade: number;
   sessionMinutes: number;
+  roundSize: number;
   weeklyGoal: number;
   enabledPacks?: Array<{ packId: string; enabled: boolean; pack: Pack }>;
+  summary?: { rank: Rank; totalXp: number; streak: number; practicedToday: boolean } | null;
+};
+
+export type Rank = {
+  level: number;
+  name: string;
+  emoji: string;
+  color: string;
+  stars: number;
+  minXp: number;
+  next: { name: string; emoji: string; minXp: number } | null;
+  xpIntoRank: number;
+  xpForRank: number;
+};
+
+export type BadgeProgress = {
+  code: string;
+  label: string;
+  emoji: string;
+  description: string;
+  earnedAt: string | null;
+  progress: number;
+  target: number;
+};
+
+export type Week = { done: number; goal: number; days: boolean[] };
+
+export type PackProgress = {
+  id: string;
+  title: string;
+  subject: string;
+  questionType: string;
+  total: number;
+  learned: number;
+  mastered: number;
+};
+
+export type KidProgress = {
+  kid: Kid;
+  totalXp: number;
+  rank: Rank;
+  streak: number;
+  practicedToday: boolean;
+  week: Week;
+  stats: { workouts: number; correct: number; learned: number; mastered: number };
+  badges: BadgeProgress[];
+  packs: PackProgress[];
+  ranks: Array<{ level: number; name: string; emoji: string; color: string; minXp: number }>;
+};
+
+export type FinishResult = {
+  correct: number;
+  total: number;
+  completedRound: boolean;
+  xpEarned: number;
+  breakdown: { correct: number; tried: number; finish: number; perfect: number; total: number };
+  totalXp: number;
+  rankBefore: Rank;
+  rank: Rank;
+  rankUp: boolean;
+  streak: number;
+  week: Week;
+  newBadges: Array<{ code: string; label: string; emoji: string; description: string }>;
 };
 
 export type Pack = {
@@ -73,6 +137,9 @@ export type Item = {
 export type SessionItem = {
   id: string;
   packId: string;
+  packTitle: string;
+  subject: string;
+  questionType: string;
   prompt: string;
   choices: string[] | null;
   audioText: string | null;
@@ -84,5 +151,7 @@ export type Session = {
   startedAt: string;
   endedAt: string | null;
   targetMinutes: number;
+  targetCount: number;
+  packId: string | null;
   xpEarned: number;
 };

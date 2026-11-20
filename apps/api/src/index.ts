@@ -39,7 +39,19 @@ app.use("/api/admin", adminRouter);
 
 const serveStatic = existsSync(STATIC_DIR);
 if (serveStatic) {
-  app.use(express.static(STATIC_DIR));
+  app.use(
+    express.static(STATIC_DIR, {
+      setHeaders(res, filePath) {
+        // The service worker and HTML shell must revalidate every load so
+        // new deploys reach installed iPads. Hashed /assets can cache hard.
+        if (filePath.endsWith("sw.js") || filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache");
+        } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    })
+  );
   app.get("*", (req, res) => {
     // SPA fallback only for path-style routes. A path with an extension
     // (e.g. /sounds/correct.mp3) that didn't match a real file should

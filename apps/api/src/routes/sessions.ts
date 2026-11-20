@@ -3,13 +3,48 @@ import { z } from "zod";
 import { prisma } from "../db.js";
 import { pickNextItem } from "../services/session-engine.js";
 import { computeReviewUpdate } from "../services/spaced-repetition.js";
+import {
+  XP,
+  awardBadges,
+  computeSessionXp,
+  getKidProgress,
+  rankForXp,
+} from "../services/progression.js";
 
 const router = Router();
 
+// A workout is a fixed-length round of questions (Duolingo-style), not a
+// timed block. Kids always know how far along they are and when it ends.
+
 const StartSchema = z.object({
   kidId: z.string(),
-  targetMinutes: z.number().int().min(5).max(60).optional(),
+  packId: z.string().nullable().optional(),
 });
+
+/**
+ * Close a session and bank its XP. Idempotent: an already-closed session
+ * keeps its original XP.
+ */
+async function finalizeSession(sessionId: string) {
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    include: { attempts: { select: { correct: true } } },
+  });
+  if (!session) return null;
+  const total = session.attempts.length;
+  const correct = session.attempts.filter((a) => a.correct).length;
+  const completedRound = total >= session.targetCount;
+  const breakdown = computeSessionXp(correct, total, completedRound);
+
+  if (session.endedAt) {
+    return { session, correct, total, completedRound, breakdown, alreadyEnded: true };
+  }
+  const updated = await prisma.session.update({
+    where: { id: sessionId },
+    data: { endedAt: new Date(), xpEarned: breakdown.total },
+  });
+  return { session: updated, correct, total, completedRound, breakdown, alreadyEnded: false };
+}
 
 router.post("/", async (req, res) => {
   const parsed = StartSchema.safeParse(req.body);
@@ -18,34 +53,94 @@ router.post("/", async (req, res) => {
   const kid = await prisma.kid.findUnique({ where: { id: parsed.data.kidId } });
   if (!kid) return res.status(404).json({ error: "Kid not found" });
 
+  // If an earlier round was abandoned (iPad went to sleep, app closed),
+  // bank the XP from what they did answer so effort is never lost.
+  const open = await prisma.session.findMany({
+    where: { kidId: kid.id, endedAt: null },
+    select: { id: true, _count: { select: { attempts: true } } },
+  });
+  for (const s of open) {
+    if (s._count.attempts > 0) await finalizeSession(s.id);
+    else await prisma.session.delete({ where: { id: s.id } });
+  }
+
   const session = await prisma.session.create({
     data: {
       kidId: kid.id,
-      targetMinutes: parsed.data.targetMinutes ?? kid.sessionMinutes,
+      targetMinutes: kid.sessionMinutes,
+      targetCount: kid.roundSize,
+      packId: parsed.data.packId ?? null,
     },
   });
   res.status(201).json(session);
 });
 
-router.get("/:id/next-item", async (req, res) => {
+async function sessionProgress(sessionId: string) {
   const session = await prisma.session.findUnique({
-    where: { id: req.params.id },
-    include: { attempts: { orderBy: { createdAt: "desc" }, take: 10, select: { itemId: true } } },
+    where: { id: sessionId },
+    include: {
+      attempts: {
+        orderBy: { createdAt: "desc" },
+        select: { itemId: true, correct: true },
+      },
+      kid: { select: { id: true, firstName: true } },
+    },
   });
-  if (!session) return res.status(404).json({ error: "Session not found" });
+  if (!session) return null;
+  const answered = session.attempts.length;
+  const correct = session.attempts.filter((a) => a.correct).length;
+  return { session, answered, correct };
+}
 
-  const recentItemIds = session.attempts.map((a) => a.itemId);
-  const item = await pickNextItem(session.kidId, recentItemIds);
-  if (!item) return res.json({ done: true });
+router.get("/:id", async (req, res) => {
+  const p = await sessionProgress(req.params.id);
+  if (!p) return res.status(404).json({ error: "Session not found" });
+  const pack = p.session.packId
+    ? await prisma.pack.findUnique({ where: { id: p.session.packId }, select: { title: true } })
+    : null;
+  res.json({
+    id: p.session.id,
+    kidId: p.session.kidId,
+    kidName: p.session.kid.firstName,
+    packId: p.session.packId,
+    packTitle: pack?.title ?? null,
+    target: p.session.targetCount,
+    answered: p.answered,
+    correct: p.correct,
+    ended: !!p.session.endedAt,
+  });
+});
+
+router.get("/:id/next-item", async (req, res) => {
+  const p = await sessionProgress(req.params.id);
+  if (!p) return res.status(404).json({ error: "Session not found" });
+  const { session, answered } = p;
+
+  if (session.endedAt || answered >= session.targetCount) {
+    return res.json({ done: true, answered, target: session.targetCount });
+  }
+
+  const recentItemIds = session.attempts.slice(0, 10).map((a) => a.itemId).reverse();
+  const item = await pickNextItem(session.kidId, recentItemIds, session.packId);
+  if (!item) return res.json({ done: true, answered, target: session.targetCount });
+
+  const pack = await prisma.pack.findUnique({
+    where: { id: item.packId },
+    select: { questionType: true, title: true, subject: true },
+  });
 
   res.json({
     done: false,
+    answered,
+    target: session.targetCount,
     item: {
       id: item.id,
       packId: item.packId,
+      packTitle: pack?.title ?? "",
+      subject: pack?.subject ?? "custom",
+      questionType: pack?.questionType ?? "type-answer",
       prompt: item.prompt,
       choices: item.choices ? JSON.parse(item.choices) : null,
-      context: null, // don't reveal context up front, only after wrong answer
       audioText: item.audioText,
     },
   });
@@ -60,7 +155,11 @@ const AttemptSchema = z.object({
 });
 
 function normalize(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, " ");
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/[.!?,;:'"]+$/g, "") // trailing punctuation
+    .replace(/\s+/g, " ");
 }
 
 function isCorrect(userAnswer: string | null, answer: string): boolean {
@@ -74,12 +173,13 @@ router.post("/:id/attempts", async (req, res) => {
 
   const session = await prisma.session.findUnique({ where: { id: req.params.id } });
   if (!session) return res.status(404).json({ error: "Session not found" });
+  if (session.endedAt) return res.status(409).json({ error: "Workout already finished" });
 
   const item = await prisma.item.findUnique({ where: { id: parsed.data.itemId } });
   if (!item) return res.status(404).json({ error: "Item not found" });
 
-  const correct =
-    !(parsed.data.timedOut ?? false) && isCorrect(parsed.data.userAnswer, item.answer);
+  const timedOut = parsed.data.timedOut ?? false;
+  const correct = !timedOut && isCorrect(parsed.data.userAnswer, item.answer);
 
   const attempt = await prisma.attempt.create({
     data: {
@@ -87,86 +187,78 @@ router.post("/:id/attempts", async (req, res) => {
       itemId: parsed.data.itemId,
       sessionId: session.id,
       correct,
-      timedOut: parsed.data.timedOut ?? false,
+      timedOut,
       responseMs: parsed.data.responseMs,
       userAnswer: parsed.data.userAnswer,
-      shownTeachCard: parsed.data.shownTeachCard ?? false,
+      shownTeachCard: !correct,
     },
   });
 
-  // Update review state
   const current = await prisma.reviewState.findUnique({
     where: { kidId_itemId: { kidId: session.kidId, itemId: parsed.data.itemId } },
   });
-
   const update = computeReviewUpdate(current, {
     correct,
-    timedOut: parsed.data.timedOut ?? false,
+    timedOut,
     responseMs: parsed.data.responseMs,
   });
-
   await prisma.reviewState.upsert({
     where: { kidId_itemId: { kidId: session.kidId, itemId: parsed.data.itemId } },
     update,
-    create: {
-      kidId: session.kidId,
-      itemId: parsed.data.itemId,
-      ...update,
-    },
+    create: { kidId: session.kidId, itemId: parsed.data.itemId, ...update },
   });
 
-  // Return the teach card info if they missed it
-  const teachCard = !correct
-    ? {
-        answer: item.answer,
-        context: item.context,
-        mnemonic: item.mnemonic,
-      }
-    : null;
+  // A "bounce back": they got right something they'd missed before.
+  const bounceBack =
+    correct &&
+    (await prisma.attempt.count({
+      where: {
+        kidId: session.kidId,
+        itemId: item.id,
+        correct: false,
+        createdAt: { lt: attempt.createdAt },
+      },
+    })) > 0;
 
-  res.json({ attempt, correct, teachCard });
+  res.json({
+    correct,
+    bounceBack,
+    answer: item.answer,
+    xp: correct ? XP.correct : XP.tried,
+    teachCard: correct
+      ? null
+      : { answer: item.answer, context: item.context, mnemonic: item.mnemonic },
+  });
 });
 
+// Finish a workout (full round or early). Returns everything the
+// celebration screen needs: XP breakdown, rank before/after, new badges.
 router.patch("/:id", async (req, res) => {
-  const session = await prisma.session.findUnique({
-    where: { id: req.params.id },
-    include: { attempts: true },
+  const result = await finalizeSession(req.params.id);
+  if (!result) return res.status(404).json({ error: "Session not found" });
+  const { session, correct, total, completedRound, breakdown } = result;
+
+  const newBadges = result.alreadyEnded ? [] : await awardBadges(session.kidId);
+  const progress = await getKidProgress(session.kidId);
+  if (!progress) return res.status(404).json({ error: "Kid not found" });
+
+  const xpEarned = session.xpEarned;
+  const before = rankForXp(progress.totalXp - xpEarned);
+
+  res.json({
+    correct,
+    total,
+    completedRound,
+    xpEarned,
+    breakdown,
+    totalXp: progress.totalXp,
+    rankBefore: before,
+    rank: progress.rank,
+    rankUp: progress.rank.level > before.level || progress.rank.stars > before.stars,
+    streak: progress.streak,
+    week: progress.week,
+    newBadges,
   });
-  if (!session) return res.status(404).json({ error: "Session not found" });
-
-  const correct = session.attempts.filter((a) => a.correct).length;
-  const total = session.attempts.length;
-  // Simple XP: 10 per correct answer, +5 bonus if session accuracy >= 80%
-  const xp = correct * 10 + (total > 0 && correct / total >= 0.8 ? 5 : 0);
-
-  const updated = await prisma.session.update({
-    where: { id: req.params.id },
-    data: { endedAt: new Date(), xpEarned: xp },
-  });
-
-  // Award badges
-  await maybeAwardBadges(session.kidId);
-
-  res.json({ ...updated, correct, total, xpEarned: xp });
 });
-
-async function maybeAwardBadges(kidId: string) {
-  const [attemptCount, sessionCount] = await Promise.all([
-    prisma.attempt.count({ where: { kidId, correct: true } }),
-    prisma.session.count({ where: { kidId, endedAt: { not: null } } }),
-  ]);
-
-  const candidates: Array<{ code: string; label: string }> = [];
-  if (attemptCount >= 100) candidates.push({ code: "100-correct", label: "100 Correct Answers" });
-  if (attemptCount >= 500) candidates.push({ code: "500-correct", label: "500 Correct Answers" });
-  if (sessionCount >= 10) candidates.push({ code: "10-sessions", label: "10 Sessions Complete" });
-  if (sessionCount >= 50) candidates.push({ code: "50-sessions", label: "50 Sessions Complete" });
-
-  for (const b of candidates) {
-    await prisma.badge
-      .create({ data: { kidId, code: b.code, label: b.label } })
-      .catch(() => {}); // unique constraint: already earned
-  }
-}
 
 export default router;

@@ -2,6 +2,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import KidHome from "./pages/KidHome";
 import Session from "./pages/Session";
+import Trophies from "./pages/Trophies";
 import AdminGate from "./pages/admin/AdminGate";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminKids from "./pages/admin/AdminKids";
@@ -12,10 +13,11 @@ import AdminSettings from "./pages/admin/AdminSettings";
 
 export default function App() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-[100dvh]">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/kid/:kidId" element={<KidHome />} />
+        <Route path="/kid/:kidId/trophies" element={<Trophies />} />
         <Route path="/session/:sessionId" element={<Session />} />
         <Route path="/admin" element={<AdminGate />} />
         <Route path="/admin/*" element={<AdminLayout />}>

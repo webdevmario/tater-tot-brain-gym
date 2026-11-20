@@ -64,7 +64,7 @@ export default function AdminKids() {
                 <span className="ml-2 text-base font-normal text-teal-400">@{kid.username}</span>
               </h3>
               <p className="text-sm text-teal-400 truncate">
-                Grade {kid.grade} · {kid.sessionMinutes} min sessions · {kid.weeklyGoal}×/week
+                Grade {kid.grade} · {kid.roundSize} questions per round · {kid.weeklyGoal}×/week
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -128,7 +128,7 @@ function KidForm({
     username: kid?.username ?? "",
     avatarEmoji: kid?.avatarEmoji ?? "",
     grade: kid?.grade ?? 2,
-    sessionMinutes: kid?.sessionMinutes ?? 12,
+    roundSize: kid?.roundSize ?? 10,
     weeklyGoal: kid?.weeklyGoal ?? 3,
   });
   const [enabledPackIds, setEnabledPackIds] = useState<Set<string>>(
@@ -275,15 +275,15 @@ function KidForm({
               />
             </div>
             <div>
-              <label className="label">Session min</label>
+              <label className="label">Questions / round</label>
               <input
                 type="number"
                 min={5}
-                max={60}
+                max={30}
                 className="input"
-                value={form.sessionMinutes}
+                value={form.roundSize}
                 onChange={(e) =>
-                  setForm({ ...form, sessionMinutes: parseInt(e.target.value) || 12 })
+                  setForm({ ...form, roundSize: parseInt(e.target.value) || 10 })
                 }
               />
             </div>

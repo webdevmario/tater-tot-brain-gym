@@ -28,7 +28,8 @@ model Kid {
   avatarPath      String?  // relative path to uploaded/customized photo
   avatarEmoji     String?  // optional emoji avatar; only used when avatarPath is null
   grade           Int      // current grade level (e.g. 3 for a kid working at 3rd grade)
-  sessionMinutes  Int      @default(12) // target session length
+  sessionMinutes  Int      @default(12) // legacy: replaced by roundSize (no timers in the kid UI)
+  roundSize       Int      @default(10) // questions per workout round
   weeklyGoal      Int      @default(3)  // target sessions per week — kid aims to do at least this many sessions per week
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -103,6 +104,8 @@ model Session {
   startedAt     DateTime  @default(now())
   endedAt       DateTime?
   targetMinutes Int
+  targetCount   Int       @default(10) // questions in this round
+  packId        String?   // null = mixed workout across all enabled packs
   xpEarned      Int       @default(0)
 
   attempts      Attempt[]

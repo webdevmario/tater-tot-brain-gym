@@ -5,6 +5,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../db.js";
+import { RANKS, getKidProgress } from "../services/progression.js";
 
 const router = Router();
 
@@ -30,14 +31,79 @@ const CreateKidSchema = z.object({
   avatarEmoji: z.string().max(8).nullable().optional(),
   grade: z.number().int().min(0).max(12),
   sessionMinutes: z.number().int().min(5).max(60).optional(),
+  roundSize: z.number().int().min(5).max(30).optional(),
   weeklyGoal: z.number().int().min(1).max(14).optional(),
 });
 
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   const kids = await prisma.kid.findMany({
     orderBy: { createdAt: "asc" },
   });
+  // ?summary=1 adds rank + streak for the profile picker.
+  if (req.query.summary) {
+    const withSummary = await Promise.all(
+      kids.map(async (k) => {
+        const p = await getKidProgress(k.id);
+        return {
+          ...k,
+          summary: p
+            ? { rank: p.rank, totalXp: p.totalXp, streak: p.streak, practicedToday: p.practicedToday }
+            : null,
+        };
+      })
+    );
+    return res.json(withSummary);
+  }
   res.json(kids);
+});
+
+// Everything the kid dashboard shows: rank, XP, streak, weekly goal,
+// badges, and per-pack learning progress.
+router.get("/:id/progress", async (req, res) => {
+  const kid = await prisma.kid.findUnique({
+    where: { id: req.params.id },
+    include: {
+      enabledPacks: {
+        where: { enabled: true, pack: { archived: false } },
+        include: { pack: { include: { _count: { select: { items: true } } } } },
+      },
+    },
+  });
+  if (!kid) return res.status(404).json({ error: "Not found" });
+  const progress = await getKidProgress(kid.id);
+  if (!progress) return res.status(404).json({ error: "Not found" });
+  const { reviewStates, ...rest } = progress;
+
+  // Only count items at or below the kid's grade (what the engine can
+  // actually serve), and hide packs with nothing to practice yet.
+  const eligible = await prisma.item.groupBy({
+    by: ["packId"],
+    where: {
+      packId: { in: kid.enabledPacks.map((kp) => kp.packId) },
+      gradeLevel: { lte: kid.grade },
+    },
+    _count: { _all: true },
+  });
+  const eligibleByPack = new Map(eligible.map((e) => [e.packId, e._count._all]));
+
+  const packs = kid.enabledPacks
+    .map(({ pack }) => {
+      const states = reviewStates.filter((r) => r.item.packId === pack.id);
+      return {
+        id: pack.id,
+        title: pack.title,
+        subject: pack.subject,
+        questionType: pack.questionType,
+        total: eligibleByPack.get(pack.id) ?? 0,
+        learned: states.filter((r) => r.repetitions > 0 || r.masteredAt).length,
+        mastered: states.filter((r) => r.masteredAt).length,
+      };
+    })
+    .filter((p) => p.total > 0)
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  const { enabledPacks: _omit, ...kidFields } = kid;
+  res.json({ kid: kidFields, ...rest, packs, ranks: RANKS });
 });
 
 router.get("/:id", async (req, res) => {
