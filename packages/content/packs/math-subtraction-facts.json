@@ -24,7 +24,7 @@
     { "id": "sub-g2-014", "gradeLevel": 2, "prompt": "12 - 8", "answer": "4" },
     { "id": "sub-g2-015", "gradeLevel": 2, "prompt": "15 - 6", "answer": "9" },
     { "id": "sub-g2-016", "gradeLevel": 2, "prompt": "20 - 11", "answer": "9" },
-    { "id": "sub-g2-017", "gradeLevel": 2, "prompt": "30 - 10", "answer": "20", "context": "Subtracting 10 from any number lowers the tens digit by 1.", "mnemonic": "Minus 10 means drop a ten." },
+    { "id": "sub-g2-017", "gradeLevel": 2, "prompt": "30 - 10", "answer": "20", "context": "Taking away 10 means taking away one ten: 3 tens minus 1 ten is 2 tens, which is 20.", "mnemonic": "Minus 10 means drop a ten." },
     { "id": "sub-g2-018", "gradeLevel": 2, "prompt": "50 - 20", "answer": "30" },
     { "id": "sub-g2-019", "gradeLevel": 2, "prompt": "80 - 40", "answer": "40" },
     { "id": "sub-g2-020", "gradeLevel": 2, "prompt": "90 - 30", "answer": "60" },
@@ -33,7 +33,7 @@
     { "id": "sub-g2-023", "gradeLevel": 2, "prompt": "67 - 30", "answer": "37" },
     { "id": "sub-g2-024", "gradeLevel": 2, "prompt": "89 - 40", "answer": "49" },
 
-    { "id": "sub-g3-001", "gradeLevel": 3, "prompt": "600 - 10", "answer": "590", "context": "When you subtract 10 from 600, only the tens place changes. 600 has 0 tens, so borrow from the hundreds: 600 = 59 tens + 10 ones worth. 600 - 10 = 590.", "mnemonic": "Hundreds minus 10 always ends in 90." },
+    { "id": "sub-g3-001", "gradeLevel": 3, "prompt": "600 - 10", "answer": "590", "context": "600 is 60 tens. Take away 1 ten and you have 59 tens, which is 590.", "mnemonic": "Hundreds minus 10 always ends in 90." },
     { "id": "sub-g3-002", "gradeLevel": 3, "prompt": "700 - 20", "answer": "680" },
     { "id": "sub-g3-003", "gradeLevel": 3, "prompt": "500 - 50", "answer": "450" },
     { "id": "sub-g3-004", "gradeLevel": 3, "prompt": "800 - 100", "answer": "700" },

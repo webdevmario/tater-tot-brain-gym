@@ -1,7 +1,20 @@
+import { useMemo } from "react";
 import type { QuestionProps } from "./types";
 
+/** Fisher–Yates; a fresh order each time a question is shown. */
+function shuffled<T>(xs: T[]): T[] {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function MultipleChoice({ item, prompt, onAnswer, disabled, reveal }: QuestionProps) {
-  const choices = item.choices ?? [];
+  // Shuffled so the right answer's position (A–D) never gives it away,
+  // and a repeated question can't be answered from memory of where it was.
+  const choices = useMemo(() => shuffled(item.choices ?? []), [item.id, item.choices]);
 
   function stateFor(choice: string) {
     if (!reveal) return "idle";
