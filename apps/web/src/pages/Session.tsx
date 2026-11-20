@@ -368,8 +368,10 @@ export default function Session() {
       </div>
 
       {feedback?.kind === "correct" && (
-        <div className="fixed inset-x-0 bottom-0 z-30 animate-sheet-up">
-          <div className="mx-auto max-w-3xl px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] rounded-t-[2rem] bg-teal-50 border-t-4 border-teal-200 flex items-center gap-4">
+        // Full-width band (edge to edge, top border only) so there are no
+        // side edges to look off; the content is centered inside it.
+        <div className="fixed inset-x-0 bottom-0 z-30 animate-sheet-up bg-teal-50 border-t-4 border-teal-200">
+          <div className="mx-auto max-w-3xl px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex items-center gap-4">
             <span className="w-14 h-14 shrink-0 rounded-full bg-teal-300 text-white grid place-items-center text-3xl animate-confirm" aria-hidden>
               ✓
             </span>
@@ -389,8 +391,8 @@ export default function Session() {
 
       {feedback?.kind === "teach" && (
         <div className="fixed inset-0 z-30 flex items-end bg-teal-600/20">
-          <div className="w-full animate-sheet-up">
-            <div className="mx-auto max-w-3xl px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-t-[2rem] bg-spud-50 border-t-4 border-spud-200">
+          <div className="w-full animate-sheet-up bg-spud-50 border-t-4 border-spud-200">
+            <div className="mx-auto max-w-3xl px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
               <TeachCard data={feedback.data} yourAnswer={feedback.yourAnswer} onContinue={advance} busy={advancing} />
             </div>
           </div>
