@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api, type Kid } from "../../lib/api";
+import type { Kid } from "../../lib/api";
+import { useCachedGet } from "../../lib/cache";
+import { Bone, ListSkeleton } from "../../components/Loading";
+import SpeedTrend, { type SpeedData } from "../../components/SpeedTrend";
 
 type Progress = {
   kid: Kid;
@@ -22,20 +24,30 @@ type Progress = {
     createdAt: string;
     item: { prompt: string; answer: string; pack: { title: string } };
   }>;
+  speed: SpeedData;
 };
 
 export default function AdminProgress() {
   const { kidId } = useParams();
-  const [data, setData] = useState<Progress | null>(null);
+  const { data } = useCachedGet<Progress>(kidId ? `/api/admin/progress/${kidId}` : null);
 
-  useEffect(() => {
-    if (!kidId) return;
-    api.get<Progress>(`/api/admin/progress/${kidId}`).then(setData);
-  }, [kidId]);
+  if (!data) {
+    return (
+      <div aria-busy="true">
+        <Bone className="h-4 w-16 mb-4" />
+        <Bone className="h-9 w-80 mb-2" />
+        <Bone className="h-4 w-64 mb-6" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {[0, 1, 2, 3].map((i) => (
+            <Bone key={i} className="h-[92px] !rounded-3xl" />
+          ))}
+        </div>
+        <ListSkeleton rows={2} rowHeight={220} />
+      </div>
+    );
+  }
 
-  if (!data) return <p>Loading...</p>;
-
-  const { kid, totals, mastery, sessions, packStats, strugglingItems, recentAttempts } = data;
+  const { kid, totals, mastery, sessions, packStats, strugglingItems, recentAttempts, speed } = data;
 
   return (
     <div>
@@ -70,6 +82,8 @@ export default function AdminProgress() {
           <p className="text-xs uppercase tracking-widest text-teal-400">Struggling</p>
         </div>
       </div>
+
+      <SpeedTrend data={speed} />
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="card">

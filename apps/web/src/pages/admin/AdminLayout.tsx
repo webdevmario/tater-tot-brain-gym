@@ -19,7 +19,7 @@ export default function AdminLayout() {
   const navItemClass = (isActive: boolean) =>
     `block px-4 py-3 rounded-xl font-display font-semibold transition-all ${
       isActive
-        ? "bg-teal-400 text-cream-50 shadow-popSm"
+        ? "bg-teal-400 text-cream-50"
         : "text-teal-400 hover:bg-cream-100"
     }`;
 

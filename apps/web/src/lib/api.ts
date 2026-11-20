@@ -44,6 +44,7 @@ export type Kid = {
   theme: string;
   titleBadge: string | null;
   weeklyGoal: number;
+  isTest: boolean;
   enabledPacks?: Array<{ packId: string; enabled: boolean; pack: Pack }>;
   summary?: {
     rank: Rank;
@@ -166,7 +167,6 @@ export type SessionItem = {
   prompt: string;
   choices: string[] | null;
   audioText: string | null;
-  sentence: string | null; // spelling bee example sentence
 };
 
 export type Session = {

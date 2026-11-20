@@ -44,8 +44,8 @@ It is not a game, but it borrows what makes good learning apps sticky:
 
 - **Kid profiles** with avatars (upload a photo, apply simple filters/stickers)
 - **Pack-based content**: enable/disable topic groups per kid
-- **Multiple question types**: multiple choice, type-the-answer, spelling
-  bee (browser text-to-speech), math drill, matching
+- **Multiple question types**: multiple choice (including "pick the
+  missing word" sight words), type-the-answer, math drill
 - **Spaced repetition**: items you miss come back; items you master
   space out until they're retired from active review
 - **Teach-me cards**: when a kid misses an item, a short card shows the
@@ -56,8 +56,7 @@ It is not a game, but it borrows what makes good learning apps sticky:
 - **Kid customization**: each kid picks a color theme, emoji avatar, and
   a title from their earned trophies. Six colors are free; eight more
   unlock with ranks (Galaxy, Neon, Lava, Gold…)
-- **Mac voice**: spelling words ("word, sentence, word") and read-aloud
-  questions are spoken by the host Mac's `say` voice and cached, so
+- **Mac voice**: read-aloud questions are spoken by the host Mac's `say` voice and cached, so
   every iPad sounds the same. Pick the voice in admin Settings; a free
   Premium voice (System Settings → Accessibility → Spoken Content →
   Manage Voices) makes a big difference
@@ -243,7 +242,22 @@ pnpm seed
 
 # Snapshot the database into ./backups/
 pnpm db:backup
+
+# Create the test profile, or wipe it back to a fresh start
+# (also a one-tap "Reset" on the test profile in admin → Kids)
+pnpm test-kid:reset
 ```
+
+The **test profile** ("Test Tot", marked 🧪 Test) is for grown-ups to
+play through new features. Resetting it deletes its rounds, answers,
+review schedule and trophies, restores the default look, and turns on
+every pack. Only a profile flagged as a test profile can be reset.
+
+**Answer speed** is tracked for grown-ups only (admin → Kids →
+Progress): median time to a correct answer and accuracy per pack, per
+week. The clock pauses while the app is in the background, and answers
+over a minute are treated as "walked away" and left out. Kids never see
+time, and speed doesn't affect XP.
 
 ---
 
@@ -340,8 +354,9 @@ determined adversary, and nothing in this app assumes it is.
 ## Status
 
 Working end to end: kid profiles, admin (packs, kids, progress), the
-session engine with spaced repetition, four question types (multiple
-choice, type-the-answer, spelling bee, math drill), progression (XP,
+session engine with spaced repetition, three question types (multiple
+choice, type-the-answer, math drill; the spelling bee was retired in
+favor of a "pick the missing word" sight-word pack), progression (XP,
 ranks, streaks, weekly goal, trophies), and PWA install.
 
 Not built yet: the "matching" question type, avatar filters/stickers.

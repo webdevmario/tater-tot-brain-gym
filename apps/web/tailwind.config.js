@@ -60,6 +60,12 @@ export default {
           "25%": { transform: "translateX(-6px)" },
           "75%": { transform: "translateX(6px)" },
         },
+        // A small press-and-settle that never grows past the element's box.
+        "confirm": {
+          "0%": { transform: "scale(1)" },
+          "40%": { transform: "scale(0.96)" },
+          "100%": { transform: "scale(1)" },
+        },
         "sheet-up": {
           "0%": { transform: "translateY(100%)" },
           "100%": { transform: "translateY(0)" },
@@ -70,6 +76,7 @@ export default {
         "rise": "rise 320ms ease-out both",
         "float-up": "float-up 1100ms ease-out forwards",
         "wiggle": "wiggle 300ms ease-in-out 2",
+        "confirm": "confirm 280ms ease-out both",
         "sheet-up": "sheet-up 260ms cubic-bezier(.2,.9,.3,1) both",
       },
     },

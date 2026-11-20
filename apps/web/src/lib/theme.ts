@@ -35,7 +35,7 @@ export function themeSurface(t: Theme): CSSProperties {
   return { background: pattern ? `${pattern},${t.gradient}` : t.gradient };
 }
 
-/** A solid button in the kid's color with the chunky pressed edge. */
+/** A solid button in the kid's color; use with .btn (its edge is the bottom border). */
 export function themeButton(t: Theme): CSSProperties {
-  return { background: t.accent, color: "#fff", boxShadow: `0 5px 0 0 ${t.shade}` };
+  return { background: t.accent, color: "#fff", borderBottomColor: t.shade };
 }

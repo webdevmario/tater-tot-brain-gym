@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type Item } from "../../lib/api";
+import { useCachedGet } from "../../lib/cache";
+import { Bone, ListSkeleton } from "../../components/Loading";
 
 type PackDetail = {
   id: string;
@@ -16,20 +18,9 @@ type PackDetail = {
 
 export default function AdminPackEditor() {
   const { packId } = useParams();
-  const [pack, setPack] = useState<PackDetail | null>(null);
+  const { data: pack, reload: refresh } = useCachedGet<PackDetail>(packId ? `/api/packs/${packId}` : null);
   const [gradeFilter, setGradeFilter] = useState<number | "all">("all");
   const [editingItem, setEditingItem] = useState<Item | null>(null);
-
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [packId]);
-
-  async function refresh() {
-    if (!packId) return;
-    const data = await api.get<PackDetail>(`/api/packs/${packId}`);
-    setPack(data);
-  }
 
   async function deleteItem(itemId: string) {
     if (!packId) return;
@@ -38,7 +29,16 @@ export default function AdminPackEditor() {
     refresh();
   }
 
-  if (!pack) return <p>Loading...</p>;
+  if (!pack) {
+    return (
+      <div aria-busy="true">
+        <Bone className="h-4 w-24 mb-4" />
+        <Bone className="h-9 w-72 mb-2" />
+        <Bone className="h-4 w-56 mb-6" />
+        <ListSkeleton rows={4} rowHeight={72} />
+      </div>
+    );
+  }
 
   const grades = Array.from(new Set(pack.items.map((i) => i.gradeLevel))).sort();
   const filteredItems =
@@ -192,8 +192,10 @@ function ItemEditor({
           </div>
         )}
 
-        <form onSubmit={save} className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+        <form onSubmit={save} className="flex-1 min-h-0 flex flex-col">
+          {/* Scroll area runs to the card's edges and pads back in, so the
+              scrollbar never crowds the fields. */}
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain -mx-6 px-6 py-1 space-y-4">
           <div>
             <label className="label">Prompt</label>
             <input

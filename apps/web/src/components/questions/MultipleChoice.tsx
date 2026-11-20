@@ -21,14 +21,14 @@ export default function MultipleChoice({ item, prompt, onAnswer, disabled, revea
               key={i}
               onClick={() => !disabled && onAnswer(choice)}
               disabled={disabled}
-              className={`btn !justify-start !text-left !text-2xl !font-body !font-bold !py-5 !px-5 border-2 w-full ${
+              className={`btn !justify-start !text-left !text-2xl !font-body !font-bold !py-5 !px-5 border-2 !border-b-4 w-full ${
                 st === "right"
-                  ? "bg-teal-50 border-teal-300 text-teal-600 shadow-[0_4px_0_0_#44A0A0] animate-pop-in"
+                  ? "bg-teal-50 border-teal-300 !border-b-teal-400 text-teal-600 animate-confirm"
                   : st === "wrong"
-                  ? "bg-coral-400/10 border-coral-400 text-coral-500 shadow-[0_4px_0_0_#F06B5D] animate-wiggle"
+                  ? "bg-coral-400/10 border-coral-400 !border-b-coral-500 text-coral-500 animate-wiggle"
                   : st === "dim"
                   ? "bg-white border-teal-100 text-teal-300 opacity-60"
-                  : "bg-white border-teal-100 text-teal-600 shadow-[0_4px_0_0_#B8DEDE] hover:border-teal-200"
+                  : "bg-white border-teal-100 !border-b-teal-200 text-teal-600 hover:border-teal-200"
               } disabled:!opacity-100`}
             >
               <span

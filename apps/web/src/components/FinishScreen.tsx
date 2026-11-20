@@ -3,12 +3,15 @@ import type { FinishResult } from "../lib/api";
 import { playSound } from "../lib/sounds";
 import { confetti } from "../lib/confetti";
 import RankMedal from "./RankMedal";
+import { Spinner } from "./Loading";
 import XpBar from "./XpBar";
 import WeekRing from "./WeekRing";
 import { themeSurface } from "../lib/theme";
 
 type Props = {
   result: FinishResult;
+  /** The round ended early because they'd done every question available. */
+  cleared?: boolean;
   onAgain: () => void;
   onDone: () => void;
 };
@@ -30,7 +33,7 @@ function useCountUp(target: number, ms = 900) {
   return n;
 }
 
-export default function FinishScreen({ result, onAgain, onDone }: Props) {
+export default function FinishScreen({ result, cleared = false, onAgain, onDone }: Props) {
   const xp = useCountUp(result.xpEarned);
   const [again, setAgain] = useState(false);
   const { rank, rankBefore, rankUp } = result;
@@ -46,6 +49,8 @@ export default function FinishScreen({ result, onAgain, onDone }: Props) {
     ? `You're a ${rank.name} now!`
     : result.breakdown.perfect
     ? "Perfect round!"
+    : cleared
+    ? "You did them all!"
     : result.completedRound
     ? "Workout done!"
     : "Nice work!";
@@ -53,7 +58,7 @@ export default function FinishScreen({ result, onAgain, onDone }: Props) {
   const lines = [
     { label: `${result.correct} right`, xp: result.breakdown.correct },
     { label: `${result.total - result.correct} good tries`, xp: result.breakdown.tried },
-    { label: "Finished the round", xp: result.breakdown.finish },
+    { label: cleared ? "Did every question" : "Finished the round", xp: result.breakdown.finish },
     { label: "Perfect round bonus", xp: result.breakdown.perfect },
   ].filter((l) => l.xp > 0);
 
@@ -66,6 +71,11 @@ export default function FinishScreen({ result, onAgain, onDone }: Props) {
       {rankUp && (
         <p className="mt-2 text-xl text-teal-400">
           You moved up from {rankBefore.emoji} {rankBefore.name}
+        </p>
+      )}
+      {cleared && (
+        <p className="mt-2 text-xl text-teal-400 text-balance">
+          That's everything here for now. These come back for review in a day or two.
         </p>
       )}
 
@@ -145,21 +155,30 @@ export default function FinishScreen({ result, onAgain, onDone }: Props) {
         )}
       </div>
 
-      <div className="mt-6 mb-4 w-full grid gap-3 sm:grid-cols-2">
-        <button onClick={onDone} className="btn-secondary !text-2xl !py-5">
-          Done
-        </button>
-        <button
-          onClick={() => {
-            setAgain(true);
-            onAgain();
-          }}
-          disabled={again}
-          className="btn-primary !text-2xl !py-5"
-        >
-          {again ? "Getting ready…" : "Another round"}
-        </button>
-      </div>
+      {cleared ? (
+        <div className="mt-6 mb-4 w-full grid gap-3">
+          <button onClick={onDone} className="btn-primary !text-2xl !py-5">
+            Pick another pack
+          </button>
+        </div>
+      ) : (
+        <div className="mt-6 mb-4 w-full grid gap-3 sm:grid-cols-2">
+          <button onClick={onDone} disabled={again} className="btn-secondary !text-2xl !py-5">
+            Done
+          </button>
+          <button
+            onClick={() => {
+              setAgain(true);
+              onAgain();
+            }}
+            disabled={again}
+            className="btn-primary !text-2xl !py-5 disabled:!opacity-100"
+          >
+            Another round
+            {again && <Spinner className="text-xl" />}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

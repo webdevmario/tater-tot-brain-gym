@@ -1,3 +1,5 @@
+import { Spinner } from "./Loading";
+
 type TeachCardData = {
   answer: string;
   context: string | null;
@@ -8,11 +10,12 @@ type Props = {
   data: TeachCardData;
   yourAnswer: string | null;
   onContinue: () => void;
+  busy?: boolean;
 };
 
 // Shown after a miss. The tone is "here's how to remember it", never
 // "you got it wrong". The item comes back later so they can bounce back.
-export default function TeachCard({ data, yourAnswer, onContinue }: Props) {
+export default function TeachCard({ data, yourAnswer, onContinue, busy = false }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-4">
@@ -41,8 +44,9 @@ export default function TeachCard({ data, yourAnswer, onContinue }: Props) {
 
       <p className="pl-14 text-teal-400">It'll come back later so you can get it right.</p>
 
-      <button onClick={onContinue} className="btn-primary w-full !text-2xl !py-5" autoFocus>
+      <button onClick={onContinue} disabled={busy} className="btn-primary w-full !text-2xl !py-5 disabled:!opacity-100" autoFocus>
         Got it
+        {busy && <Spinner className="text-xl" />}
       </button>
     </div>
   );

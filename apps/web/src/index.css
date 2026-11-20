@@ -27,29 +27,40 @@
     user-select: none;
     -webkit-touch-callout: none;
   }
+  /* Keyboard focus: a thin outline hugging the element. Kept to 2px of
+     offset so it never reaches past the gutters of scroll areas. Text
+     fields show focus with their own border instead (see .input). */
   :focus-visible {
-    @apply outline-none ring-4 ring-spud-300/70 ring-offset-2 ring-offset-cream-50;
+    outline: 3px solid rgb(242 176 74 / 0.85);
+    outline-offset: 2px;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
   }
 }
 
 @layer components {
-  /* Chunky, press-down buttons: the bottom edge collapses when tapped. */
+  /* Chunky buttons. The darker "edge" is a bottom border drawn inside
+     the button's own box, and pressing scales the button down slightly,
+     so nothing ever pokes outside its footprint or gets clipped by a
+     scrolling or rounded parent. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-display font-semibold transition-[transform,box-shadow,background-color] duration-100 active:translate-y-1 active:shadow-none disabled:opacity-40 disabled:active:translate-y-0;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-display font-semibold border-b-4 border-black/20 transition-[transform,filter,background-color] duration-100 active:scale-[0.97] active:brightness-95 disabled:opacity-40 disabled:active:scale-100 disabled:active:brightness-100;
     min-height: 48px;
   }
   .btn-primary {
-    @apply btn bg-teal-400 text-cream-50 shadow-pop hover:bg-teal-500;
+    @apply btn bg-teal-400 text-cream-50 hover:bg-teal-500;
   }
   .btn-secondary {
-    @apply btn bg-white text-teal-500 border-2 border-teal-100 shadow-popSm hover:bg-cream-100;
+    @apply btn bg-white text-teal-500 border-2 border-b-4 border-teal-100 border-b-teal-200 hover:bg-cream-100;
   }
   .btn-spud {
     @apply btn bg-spud-300 text-teal-600 hover:bg-spud-400;
-    box-shadow: 0 4px 0 0 #C77315;
   }
   .btn-danger {
-    @apply btn bg-coral-400 text-white shadow-popSm hover:bg-coral-500;
+    @apply btn bg-coral-400 text-white hover:bg-coral-500;
   }
   .card {
     @apply rounded-3xl bg-white/80 backdrop-blur border-2 border-teal-100 p-6 shadow-popSm;
@@ -59,6 +70,24 @@
   }
   .input {
     @apply w-full rounded-2xl border-2 border-teal-100 bg-white px-4 py-3 font-body text-lg text-teal-600 outline-none focus:border-teal-300;
+  }
+  .input:focus {
+    box-shadow: inset 0 0 0 1px theme("colors.teal.300");
+  }
+  /* Shimmering placeholder blocks that hold the page's layout while data loads. */
+  .skeleton {
+    @apply rounded-2xl bg-teal-100/40;
+    background-image: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.55) 50%, transparent 100%);
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+  }
+  @keyframes shimmer {
+    0% { background-position: 150% 0; }
+    100% { background-position: -50% 0; }
   }
   .label {
     @apply block text-sm font-semibold uppercase tracking-wider text-teal-400 mb-1;

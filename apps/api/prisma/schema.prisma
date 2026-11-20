@@ -33,6 +33,7 @@ model Kid {
   theme           String   @default("teal") // kid-chosen color theme (see services/themes.ts)
   titleBadge      String?  // badge code the kid shows as their title
   weeklyGoal      Int      @default(3)  // target sessions per week — kid aims to do at least this many sessions per week
+  isTest          Boolean  @default(false) // test profile: resettable from the parent area, never a real kid
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

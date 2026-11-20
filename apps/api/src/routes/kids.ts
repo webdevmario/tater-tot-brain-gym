@@ -37,8 +37,9 @@ const CreateKidSchema = z.object({
 });
 
 router.get("/", async (req, res) => {
+  // The test profile always sorts last.
   const kids = await prisma.kid.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ isTest: "asc" }, { createdAt: "asc" }],
   });
   // ?summary=1 adds rank + streak for the profile picker.
   if (req.query.summary) {

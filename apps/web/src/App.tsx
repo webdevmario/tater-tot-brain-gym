@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useParams } from "react-router-dom";
 import Home from "./pages/Home";
 import KidHome from "./pages/KidHome";
 import Session from "./pages/Session";
@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/kid/:kidId" element={<KidHome />} />
         <Route path="/kid/:kidId/trophies" element={<Trophies />} />
         <Route path="/kid/:kidId/style" element={<Customize />} />
-        <Route path="/session/:sessionId" element={<Session />} />
+        <Route path="/session/:sessionId" element={<SessionRoute />} />
         <Route path="/admin" element={<AdminGate />} />
         <Route path="/admin/*" element={<AdminLayout />}>
           <Route path="kids" element={<AdminKids />} />
@@ -43,4 +43,11 @@ export default function App() {
       </Routes>
     </div>
   );
+}
+
+// Keyed by id so "Another round" (same route, new id) mounts a fresh
+// round instead of reusing the finished one's state.
+function SessionRoute() {
+  const { sessionId } = useParams();
+  return <Session key={sessionId} />;
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Pack } from "../../lib/api";
 import { getCache, setCache } from "../../lib/cache";
+import { ListSkeleton } from "../../components/Loading";
 
 export default function AdminPacks() {
   const [packs, setPacks] = useState<Pack[] | null>(getCache<Pack[]>("packs") ?? null);
@@ -69,6 +70,8 @@ export default function AdminPacks() {
           {error}
         </div>
       )}
+
+      {!packs && <ListSkeleton rows={4} />}
 
       <div className="grid gap-3">
         {packs?.map((pack) => (

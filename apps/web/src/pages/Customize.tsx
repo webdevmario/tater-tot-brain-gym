@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type KidProgress, type Theme } from "../lib/api";
+import { useCachedGet } from "../lib/cache";
+import { Bone } from "../components/Loading";
 import { themeSurface } from "../lib/theme";
 import { playSound } from "../lib/sounds";
 import KidAvatar from "../components/KidAvatar";
@@ -15,12 +17,8 @@ const AVATARS: Array<[string, string[]]> = [
 
 export default function Customize() {
   const { kidId } = useParams();
-  const [data, setData] = useState<KidProgress | null>(null);
+  const { data, setData } = useCachedGet<KidProgress>(kidId ? `/api/kids/${kidId}/progress` : null);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (kidId) api.get<KidProgress>(`/api/kids/${kidId}/progress`).then(setData);
-  }, [kidId]);
 
   async function save(patch: { theme?: string; avatarEmoji?: string; titleBadge?: string | null }) {
     if (!data || saving) return;
@@ -55,7 +53,22 @@ export default function Customize() {
     }
   }
 
-  if (!data) return <div className="min-h-[100dvh] grid place-items-center text-teal-300">Loading…</div>;
+  if (!data) {
+    return (
+      <div className="safe-page min-h-[100dvh] max-w-4xl mx-auto pb-10" aria-busy="true">
+        <Link to={`/kid/${kidId}`} className="btn-secondary !py-2 !px-4 !text-base">
+          ← Done
+        </Link>
+        <Bone className="mt-5 h-[144px] !rounded-[2rem]" />
+        <Bone className="h-8 w-40 mt-8 mb-3" />
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          {Array.from({ length: 7 }, (_, i) => (
+            <Bone key={i} className="h-24" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const { kid, theme, rank } = data;
   const earned = data.badges.filter((b) => b.earnedAt);
@@ -130,10 +143,10 @@ export default function Customize() {
                     onClick={() => save({ avatarEmoji: e })}
                     aria-label={`Use ${e} as avatar`}
                     aria-pressed={selected}
-                    className={`w-14 h-14 rounded-2xl grid place-items-center text-3xl border-2 transition-transform active:scale-90 ${
-                      selected ? "bg-white scale-110" : "bg-white/70 border-teal-100"
+                    className={`w-14 h-14 rounded-2xl grid place-items-center text-3xl border-[3px] transition-transform active:scale-90 ${
+                      selected ? "bg-white" : "bg-white/70 border-teal-100"
                     }`}
-                    style={selected ? { borderColor: theme.accent, boxShadow: `0 3px 0 0 ${theme.shade}` } : undefined}
+                    style={selected ? { borderColor: theme.accent, background: `${theme.accent}1f` } : undefined}
                   >
                     {e}
                   </button>
@@ -167,8 +180,12 @@ function ThemeSwatch({
       aria-pressed={selected}
       className={`relative rounded-2xl h-24 p-2 flex flex-col justify-end text-left text-white overflow-hidden transition-transform ${
         unlocked ? "active:scale-95" : "cursor-default"
-      } ${selected ? "ring-4 ring-offset-2 ring-offset-cream-50" : ""}`}
-      style={{ ...themeSurface(theme), ...(selected ? { ["--tw-ring-color" as string]: theme.accent } : {}) }}
+      }`}
+      style={{
+        ...themeSurface(theme),
+        // Selected: a white ring drawn inside the swatch, so it never spills into the grid gap.
+        ...(selected ? { boxShadow: "inset 0 0 0 3px #fff, inset 0 0 0 6px rgba(0,0,0,.28)" } : {}),
+      }}
     >
       {!unlocked && <span className="absolute inset-0 bg-black/30" aria-hidden />}
       {selected && (

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api, type KidProgress } from "../lib/api";
+import type { KidProgress } from "../lib/api";
+import { useCachedGet } from "../lib/cache";
+import { Bone, ListSkeleton } from "../components/Loading";
 import BadgeTile from "../components/BadgeTile";
 import RankMedal from "../components/RankMedal";
 
@@ -8,13 +9,21 @@ import RankMedal from "../components/RankMedal";
 // road ahead and where they are on it.
 export default function Trophies() {
   const { kidId } = useParams();
-  const [data, setData] = useState<KidProgress | null>(null);
+  const { data } = useCachedGet<KidProgress>(kidId ? `/api/kids/${kidId}/progress` : null);
 
-  useEffect(() => {
-    if (kidId) api.get<KidProgress>(`/api/kids/${kidId}/progress`).then(setData);
-  }, [kidId]);
-
-  if (!data) return <div className="min-h-[100dvh] grid place-items-center text-teal-300">Loading…</div>;
+  if (!data) {
+    return (
+      <div className="safe-page min-h-[100dvh] max-w-5xl mx-auto" aria-busy="true">
+        <Link to={`/kid/${kidId}`} className="btn-secondary !py-2 !px-4 !text-base">
+          ← Back
+        </Link>
+        <Bone className="h-10 w-72 mt-6" />
+        <Bone className="h-6 w-32 mt-2" />
+        <Bone className="h-8 w-40 mt-8 mb-3" />
+        <ListSkeleton rows={1} rowHeight={150} />
+      </div>
+    );
+  }
 
   const earned = data.badges.filter((b) => b.earnedAt);
   const locked = data.badges
@@ -33,7 +42,7 @@ export default function Trophies() {
       </p>
 
       <h2 className="text-2xl font-display font-bold text-teal-500 mt-8 mb-3">Rank ladder</h2>
-      <div className="panel p-4 overflow-x-auto">
+      <div className="panel p-4 overflow-x-auto overscroll-x-contain">
         <ol className="flex gap-2 min-w-max">
           {data.ranks.map((r) => {
             const reached = data.rank.level >= r.level;

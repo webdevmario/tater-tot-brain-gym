@@ -8,6 +8,7 @@
     "dev": "pnpm --parallel --filter \"./apps/*\" dev",
     "build": "pnpm --filter \"./apps/*\" build",
     "seed": "pnpm --filter @ttbg/api seed",
+    "test-kid:reset": "pnpm --filter @ttbg/api test-kid:reset",
     "db:migrate": "pnpm --filter @ttbg/api db:migrate",
     "db:studio": "pnpm --filter @ttbg/api db:studio",
     "db:reset": "pnpm --filter @ttbg/api db:reset",

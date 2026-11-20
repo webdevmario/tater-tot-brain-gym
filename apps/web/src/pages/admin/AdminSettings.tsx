@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { ListSkeleton } from "../../components/Loading";
 import { loadBuffer, playBuffer } from "../../lib/audio";
 import { playSound, type SoundName } from "../../lib/sounds";
 
 type Voice = { name: string; lang: string; quality: "premium" | "enhanced" | "standard" };
 
-const SAMPLE = "because. I stayed home because it rained. because.";
+const SAMPLE = "Which planet is closest to the sun?";
 const SOUNDS: Array<[SoundName, string]> = [
   ["correct", "Correct"],
   ["wrong", "Not quite"],
@@ -48,11 +49,11 @@ function SpeechSettings() {
     <div className="card">
       <h2 className="text-xl font-display font-bold text-teal-500 mb-1">Reading voice</h2>
       <p className="text-sm text-teal-400 mb-4">
-        Spelling words and read-aloud questions are spoken by this Mac, so every iPad hears the same voice.
+        Read-aloud questions (the 🔊 button) are spoken by this Mac, so every iPad hears the same voice.
       </p>
 
       {voices === null ? (
-        <p className="text-teal-300">Loading voices…</p>
+        <ListSkeleton rows={3} rowHeight={52} />
       ) : voices.length === 0 ? (
         <p className="text-sm text-teal-500">
           This server can't generate speech, so each device uses its own built-in voice.

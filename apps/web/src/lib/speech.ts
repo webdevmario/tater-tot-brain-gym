@@ -43,9 +43,9 @@ export function stopSpeaking(): void {
   if (canDeviceSpeak) window.speechSynthesis.cancel();
 }
 
-/** Spelling-bee format: word, sentence, word. */
-export function spellingLine(word: string, sentence: string | null): string {
-  return sentence ? `${word}. ${sentence} ${word}.` : word;
+/** What to say for a question: fill-in-the-blank lines read the gap as "blank". */
+export function speakable(prompt: string): string {
+  return prompt.replace(/_{2,}/g, "blank");
 }
 
 // ---- Device fallback (Web Speech) ----

@@ -122,9 +122,28 @@ router.get("/:id/next-item", async (req, res) => {
     return res.json({ done: true, answered, target: session.targetCount });
   }
 
-  const recentItemIds = session.attempts.slice(0, 10).map((a) => a.itemId).reverse();
-  const item = await pickNextItem(session.kidId, recentItemIds, session.packId);
-  if (!item) return res.json({ done: true, answered, target: session.targetCount });
+  // Attempts come newest-first; the engine wants the round in order.
+  const history = [...session.attempts].reverse().map((a) => ({ itemId: a.itemId, correct: a.correct }));
+  const item = await pickNextItem(session.kidId, { answered: history }, session.packId);
+  if (!item) {
+    if (answered === 0) {
+      // Nothing to serve at the start of a round: either the pack has
+      // nothing at this kid's grade ("empty"), or they've already done
+      // everything available today ("cleared").
+      const seen = await prisma.reviewState.count({
+        where: {
+          kidId: session.kidId,
+          ...(session.packId ? { item: { packId: session.packId } } : {}),
+        },
+      });
+      return res.json({ done: true, answered, target: session.targetCount, reason: seen > 0 ? "cleared" : "empty" });
+    }
+    // Ran out of fresh questions mid-round. End the round here and count
+    // it as finished (it is: they did everything there was), rather than
+    // padding it out with repeats.
+    await prisma.session.update({ where: { id: session.id }, data: { targetCount: answered } });
+    return res.json({ done: true, answered, target: answered, reason: "cleared" });
+  }
 
   const pack = await prisma.pack.findUnique({
     where: { id: item.packId },
@@ -144,14 +163,6 @@ router.get("/:id/next-item", async (req, res) => {
       prompt: item.prompt,
       choices: item.choices ? JSON.parse(item.choices) : null,
       audioText: item.audioText,
-      // Spelling bees read "word, sentence, word". The example sentence
-      // isn't a spoiler for spelling, so send it up front for that type.
-      sentence:
-        pack?.questionType === "spelling-bee" &&
-        item.context &&
-        item.context.toLowerCase().includes(item.prompt.toLowerCase())
-          ? item.context
-          : null,
     },
   });
 });

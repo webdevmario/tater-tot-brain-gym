@@ -1,20 +1,14 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api, type Kid } from "../lib/api";
+import type { Kid } from "../lib/api";
+import { useCachedGet } from "../lib/cache";
+import { KidCardsSkeleton } from "../components/Loading";
 import KidAvatar from "../components/KidAvatar";
 import RankMedal from "../components/RankMedal";
 import { DEFAULT_THEME, themeSurface } from "../lib/theme";
 
 export default function Home() {
-  const [kids, setKids] = useState<Kid[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    api
-      .get<Kid[]>("/api/kids?summary=1")
-      .then(setKids)
-      .catch((err) => setError(err.message));
-  }, []);
+  const { data: kids, error: loadError } = useCachedGet<Kid[]>("/api/kids?summary=1");
+  const error = kids ? null : loadError;
 
   return (
     <div className="safe-page min-h-[100dvh] flex flex-col items-center">
@@ -41,6 +35,8 @@ export default function Home() {
         </div>
       )}
 
+      {!kids && !error && <KidCardsSkeleton />}
+
       {kids && kids.length === 0 && (
         <div className="panel max-w-lg w-full p-8 text-center">
           <p className="text-2xl font-display font-semibold mb-2">No profiles yet</p>
@@ -59,7 +55,7 @@ export default function Home() {
             <Link
               key={kid.id}
               to={`/kid/${kid.id}`}
-              className="panel group overflow-hidden pb-6 flex flex-col items-center text-center gap-3 border-2 active:scale-[0.98] transition-transform animate-rise"
+              className="panel group relative overflow-hidden pb-6 flex flex-col items-center text-center gap-3 border-2 active:scale-[0.98] transition-transform animate-rise"
               style={{ animationDelay: `${i * 60}ms`, borderColor: theme.accent }}
             >
               {/* The kid's color as a banner, avatar overlapping it. */}
@@ -70,6 +66,11 @@ export default function Home() {
                 style={{ borderColor: theme.accent }}
                 emojiClassName="text-6xl"
               />
+              {kid.isTest && (
+                <span className="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-teal-600">
+                  🧪 Test
+                </span>
+              )}
               <h2 className="text-3xl font-display font-bold text-teal-600 truncate max-w-full px-4">
                 {kid.firstName}
               </h2>

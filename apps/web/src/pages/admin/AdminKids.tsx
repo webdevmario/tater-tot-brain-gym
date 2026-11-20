@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Kid, type Pack } from "../../lib/api";
-import { getCache, setCache } from "../../lib/cache";
+import { getCache, invalidateCache, setCache } from "../../lib/cache";
 import KidAvatar from "../../components/KidAvatar";
+import { ListSkeleton, Spinner } from "../../components/Loading";
 
 // Curated kid-friendly emoji set for the avatar picker. Roughly one
 // row per category. The "type your own" input below the grid lets a
@@ -23,6 +24,9 @@ export default function AdminKids() {
   const [packs, setPacks] = useState<Pack[] | null>(getCache<Pack[]>("packs") ?? null);
   const [editing, setEditing] = useState<Kid | null>(null);
   const [creating, setCreating] = useState(false);
+  // Which row button is working: "edit:<id>", "reset:<id>", "delete:<id>", or "test".
+  const [pending, setPending] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     refresh();
@@ -39,54 +43,128 @@ export default function AdminKids() {
     setCache("packs", p);
   }
 
-  async function deleteKid(id: string) {
-    if (!confirm("Delete this kid and all their progress? This can't be undone.")) return;
-    await api.delete(`/api/kids/${id}`);
-    refresh();
+  async function run(key: string, fn: () => Promise<unknown>) {
+    setPending(key);
+    try {
+      await fn();
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setPending(null);
+    }
   }
+
+  function deleteKid(kid: Kid) {
+    if (!confirm(`Delete ${kid.firstName} and all their progress? This can't be undone.`)) return;
+    run(`delete:${kid.id}`, async () => {
+      await api.delete(`/api/kids/${kid.id}`);
+      await refresh();
+    });
+  }
+
+  function resetTestKid(kid: Kid) {
+    if (!confirm(`Reset ${kid.firstName} to a brand-new start? All of this test profile's rounds, XP and trophies are wiped.`)) return;
+    run(`reset:${kid.id}`, async () => {
+      await api.post(`/api/admin/kids/${kid.id}/reset`, {});
+      // Don't let the kid screens flash the old XP from the client cache.
+      invalidateCache(`/api/kids/${kid.id}/progress`);
+      invalidateCache(`/api/admin/progress/${kid.id}`);
+      invalidateCache("/api/kids?summary=1");
+      await refresh();
+      setNotice(`${kid.firstName} is reset: rank 1, no XP or trophies, all packs on.`);
+      window.setTimeout(() => setNotice(null), 4000);
+    });
+  }
+
+  function addTestKid() {
+    run("test", async () => {
+      await api.post(`/api/admin/test-kid`, {});
+      await refresh();
+    });
+  }
+
+  const hasTestKid = kids?.some((k) => k.isTest) ?? true;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-display font-bold text-teal-500">Kids</h1>
-        <button onClick={() => setCreating(true)} className="btn-primary">
-          + Add kid
-        </button>
+        <div className="flex gap-2">
+          {!hasTestKid && (
+            <button onClick={addTestKid} disabled={!!pending} className="btn-secondary">
+              🧪 Add test profile
+              {pending === "test" && <Spinner />}
+            </button>
+          )}
+          <button onClick={() => setCreating(true)} className="btn-primary">
+            + Add kid
+          </button>
+        </div>
       </div>
+
+      {notice && (
+        <p className="mb-4 rounded-2xl bg-teal-50 border border-teal-100 px-4 py-3 text-teal-500 font-semibold" role="status">
+          {notice}
+        </p>
+      )}
+
+      {!kids && <ListSkeleton rows={2} />}
 
       <div className="grid gap-4">
         {kids?.map((kid) => (
-          <div key={kid.id} className="card flex items-center gap-4">
+          <div key={kid.id} className={`card flex items-center gap-4 ${kid.isTest ? "!border-dashed" : ""}`}>
             <KidAvatar kid={kid} className="shrink-0 w-16 h-16" emojiClassName="text-2xl" />
             <div className="flex-1 min-w-0">
               <h3 className="font-display font-bold text-xl text-teal-500 truncate">
                 {kid.firstName} {kid.lastName}
                 <span className="ml-2 text-base font-normal text-teal-400">@{kid.username}</span>
+                {kid.isTest && (
+                  <span className="ml-2 align-middle rounded-full bg-spud-50 border border-spud-200 px-2 py-0.5 text-xs font-bold text-spud-500">
+                    TEST
+                  </span>
+                )}
               </h3>
               <p className="text-sm text-teal-400 truncate">
-                Grade {kid.grade} · {kid.roundSize} questions per round · {kid.weeklyGoal}×/week
+                {kid.isTest
+                  ? `Grade ${kid.grade} · Play as this profile to try things out, then reset it.`
+                  : `Grade ${kid.grade} · ${kid.roundSize} questions per round · ${kid.weeklyGoal}×/week`}
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
               <Link to={`/admin/progress/${kid.id}`} className="btn-secondary !py-2 !px-3 text-sm">
                 Progress
               </Link>
+              {kid.isTest && (
+                <button
+                  onClick={() => resetTestKid(kid)}
+                  disabled={!!pending}
+                  className="btn-spud !py-2 !px-3 text-sm"
+                >
+                  Reset
+                  {pending === `reset:${kid.id}` && <Spinner />}
+                </button>
+              )}
               <button
-                onClick={async () => {
-                  // Refetch with enabledPacks so the form shows
-                  // currently-selected packs as checked.
-                  const full = await api.get<Kid>(`/api/kids/${kid.id}`);
-                  setEditing(full);
-                }}
+                onClick={() =>
+                  run(`edit:${kid.id}`, async () => {
+                    // Refetch with enabledPacks so the form shows
+                    // currently-selected packs as checked.
+                    setEditing(await api.get<Kid>(`/api/kids/${kid.id}`));
+                  })
+                }
+                disabled={!!pending}
                 className="btn-secondary !py-2 !px-3 text-sm"
               >
                 Edit
+                {pending === `edit:${kid.id}` && <Spinner />}
               </button>
               <button
-                onClick={() => deleteKid(kid.id)}
+                onClick={() => deleteKid(kid)}
+                disabled={!!pending}
                 className="btn-danger !py-2 !px-3 text-sm"
               >
                 Delete
+                {pending === `delete:${kid.id}` && <Spinner />}
               </button>
             </div>
           </div>
@@ -135,11 +213,14 @@ function KidForm({
     new Set(kid?.enabledPacks?.filter((p) => p.enabled).map((p) => p.packId) ?? [])
   );
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    if (saving) return;
     setError(null);
+    setSaving(true);
     try {
       let savedKid: Kid;
       if (kid) {
@@ -160,6 +241,7 @@ function KidForm({
       onClose();
     } catch (err) {
       setError((err as Error).message);
+      setSaving(false);
     }
   }
 
@@ -228,8 +310,11 @@ function KidForm({
           </div>
         )}
 
-        <form onSubmit={save} className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+        <form onSubmit={save} className="flex-1 min-h-0 flex flex-col">
+          {/* The scroll area runs to the card's edges (-mx-6) and pads its
+              content back in (px-6), so the scrollbar sits at the card's
+              edge with a full gutter of space between it and the fields. */}
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain -mx-6 px-6 py-1 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="label">First name</label>
@@ -420,8 +505,9 @@ function KidForm({
 
           </div>
           <div className="shrink-0 flex gap-3 pt-4 mt-4 border-t-2 border-cream-100">
-            <button type="submit" className="btn-primary flex-1">
-              Save
+            <button type="submit" disabled={saving} className="btn-primary flex-1 disabled:!opacity-100">
+              {saving ? "Saving" : "Save"}
+              {saving && <Spinner />}
             </button>
             <button type="button" onClick={onClose} className="btn-secondary">
               Cancel

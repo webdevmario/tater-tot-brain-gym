@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { hashPin, verifyPin } from "../services/pin.js";
+import { ensureTestKid, resetTestKid } from "../services/test-kid.js";
 
 const router = Router();
 
@@ -47,13 +48,105 @@ router.post("/pin/change", async (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Test profile ----------
+
+router.post("/test-kid", async (_req, res) => {
+  const { kid, created } = await ensureTestKid();
+  res.status(created ? 201 : 200).json(kid);
+});
+
+router.post("/kids/:kidId/reset", async (req, res) => {
+  try {
+    res.json(await resetTestKid(req.params.kidId));
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    res.status(e.status ?? 500).json({ error: e.message });
+  }
+});
+
+// ---------- Answer speed (grown-ups only) ----------
+// The kid UI never shows time. Response times are measured with the
+// clock paused while the app is in the background, and anything over
+// IDLE_MS is treated as "walked away" and left out.
+
+const IDLE_MS = 60_000;
+const MIN_MS = 300; // double-taps / accidental submits
+const SPEED_WEEKS = 8;
+
+function mondayOf(d: Date) {
+  const m = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  m.setDate(m.getDate() - ((m.getDay() + 6) % 7));
+  return m;
+}
+
+function isoDay(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function median(xs: number[]) {
+  if (xs.length === 0) return null;
+  const s = [...xs].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : Math.round((s[mid - 1] + s[mid]) / 2);
+}
+
+async function speedTrend(kidId: string) {
+  const firstWeek = mondayOf(new Date());
+  firstWeek.setDate(firstWeek.getDate() - 7 * (SPEED_WEEKS - 1));
+  const weeks = Array.from({ length: SPEED_WEEKS }, (_, i) => {
+    const d = new Date(firstWeek);
+    d.setDate(d.getDate() + 7 * i);
+    return isoDay(d);
+  });
+
+  const attempts = await prisma.attempt.findMany({
+    where: { kidId, createdAt: { gte: firstWeek }, timedOut: false },
+    select: { correct: true, responseMs: true, createdAt: true, item: { select: { pack: { select: { id: true, title: true } } } } },
+  });
+
+  type Bucket = { answered: number; correct: number; times: number[] };
+  const packs = new Map<string, { title: string; buckets: Map<string, Bucket> }>();
+  let idle = 0;
+  for (const a of attempts) {
+    const pack = a.item.pack;
+    const entry = packs.get(pack.id) ?? { title: pack.title, buckets: new Map() };
+    packs.set(pack.id, entry);
+    const wk = isoDay(mondayOf(a.createdAt));
+    const b = entry.buckets.get(wk) ?? { answered: 0, correct: 0, times: [] };
+    entry.buckets.set(wk, b);
+    b.answered += 1;
+    if (a.correct) b.correct += 1;
+    if (a.responseMs > IDLE_MS) idle += 1;
+    // Speed only from correct answers in a sane range: how quickly they
+    // recall what they know.
+    else if (a.correct && a.responseMs >= MIN_MS) b.times.push(a.responseMs);
+  }
+
+  return {
+    weeks,
+    idleExcluded: idle,
+    packs: [...packs.entries()]
+      .map(([packId, p]) => ({
+        packId,
+        title: p.title,
+        weeks: weeks.map((wk) => {
+          const b = p.buckets.get(wk);
+          return b
+            ? { week: wk, answered: b.answered, accuracy: b.correct / b.answered, medianMs: median(b.times) }
+            : { week: wk, answered: 0, accuracy: null, medianMs: null };
+        }),
+      }))
+      .sort((a, b) => a.title.localeCompare(b.title)),
+  };
+}
+
 // Progress dashboard for a kid
 router.get("/progress/:kidId", async (req, res) => {
   const kidId = req.params.kidId;
   const kid = await prisma.kid.findUnique({ where: { id: kidId } });
   if (!kid) return res.status(404).json({ error: "Kid not found" });
 
-  const [totalAttempts, correctAttempts, sessions, reviewStates, recentAttempts] =
+  const [totalAttempts, correctAttempts, sessions, reviewStates, recentAttempts, speed] =
     await Promise.all([
       prisma.attempt.count({ where: { kidId } }),
       prisma.attempt.count({ where: { kidId, correct: true } }),
@@ -72,6 +165,7 @@ router.get("/progress/:kidId", async (req, res) => {
         orderBy: { createdAt: "desc" },
         take: 30,
       }),
+      speedTrend(kidId),
     ]);
 
   const mastered = reviewStates.filter((r) => r.masteredAt).length;
@@ -95,6 +189,7 @@ router.get("/progress/:kidId", async (req, res) => {
     sessions,
     packStats: Array.from(packStats.entries()).map(([id, s]) => ({ packId: id, ...s })),
     recentAttempts,
+    speed,
     strugglingItems: reviewStates
       .filter((r) => r.lapses >= 2 || r.strugglingFlag)
       .slice(0, 20)
