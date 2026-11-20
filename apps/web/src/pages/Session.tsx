@@ -92,6 +92,12 @@ export default function Session() {
     });
   }
 
+  // No rubber-band bounce while a round is on screen.
+  useEffect(() => {
+    document.documentElement.classList.add("no-bounce");
+    return () => document.documentElement.classList.remove("no-bounce");
+  }, []);
+
   useEffect(() => {
     if (!sessionId) return;
     Promise.all([api.get<SessionMeta>(`/api/sessions/${sessionId}`), fetchNext()])

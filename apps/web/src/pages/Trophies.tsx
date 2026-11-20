@@ -42,15 +42,16 @@ export default function Trophies() {
       </p>
 
       <h2 className="text-2xl font-display font-bold text-teal-500 mt-8 mb-3">Rank ladder</h2>
-      <div className="panel p-4 overflow-x-auto overscroll-x-contain">
-        <ol className="flex gap-2 min-w-max">
+      {/* Two rows of five, so the whole ladder fits without sideways scrolling. */}
+      <div className="panel p-4">
+        <ol className="grid grid-cols-5 gap-2">
           {data.ranks.map((r) => {
             const reached = data.rank.level >= r.level;
             const current = data.rank.level === r.level;
             return (
               <li
                 key={r.level}
-                className={`flex flex-col items-center w-24 rounded-2xl py-3 ${current ? "bg-spud-50 ring-2 ring-spud-300" : ""}`}
+                className={`flex flex-col items-center rounded-2xl py-3 px-1 ${current ? "bg-spud-50 ring-2 ring-inset ring-spud-300" : ""}`}
               >
                 <div className={reached ? "" : "grayscale opacity-40"}>
                   <RankMedal rank={{ ...r, stars: current ? data.rank.stars : 0 }} size="md" />
