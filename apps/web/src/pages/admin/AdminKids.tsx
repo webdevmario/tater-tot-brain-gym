@@ -71,7 +71,7 @@ export default function AdminKids() {
       invalidateCache(`/api/admin/progress/${kid.id}`);
       invalidateCache("/api/kids?summary=1");
       await refresh();
-      setNotice(`${kid.firstName} is reset: rank 1, no XP or trophies, all packs on.`);
+      setNotice(`${kid.firstName} is reset: level 1, no XP or trophies, all packs on.`);
       window.setTimeout(() => setNotice(null), 4000);
     });
   }
@@ -92,7 +92,7 @@ export default function AdminKids() {
         <div className="flex gap-2">
           {!hasTestKid && (
             <button onClick={addTestKid} disabled={!!pending} className="btn-secondary">
-              🧪 Add test profile
+              Add test profile
               {pending === "test" && <Spinner />}
             </button>
           )}

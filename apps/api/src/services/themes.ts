@@ -1,7 +1,7 @@
 /**
  * Kid color themes. Six are free from day one so there's a real choice
- * immediately; the rest unlock by rank, which gives older kids a reason
- * to keep climbing. `minLevel` matches RANKS levels in progression.ts.
+ * immediately; the rest unlock by level, which gives older kids a reason
+ * to keep climbing. `minLevel` matches LEVELS in progression.ts.
  */
 
 export type Theme = {

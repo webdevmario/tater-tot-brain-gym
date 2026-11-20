@@ -7,7 +7,7 @@
 import { prisma } from "../db.js";
 
 const TEST_DEFAULTS = {
-  avatarEmoji: "🧪",
+  avatarEmoji: "🙂",
   avatarPath: null,
   theme: "teal",
   titleBadge: null,

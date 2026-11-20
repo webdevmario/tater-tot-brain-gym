@@ -68,12 +68,8 @@ export type Theme = {
 
 export type Rank = {
   level: number;
-  name: string;
-  emoji: string;
-  color: string;
-  stars: number;
   minXp: number;
-  next: { name: string; emoji: string; minXp: number } | null;
+  next: { level: number; minXp: number };
   xpIntoRank: number;
   xpForRank: number;
 };
@@ -110,7 +106,7 @@ export type KidProgress = {
   stats: { workouts: number; correct: number; learned: number; mastered: number };
   badges: BadgeProgress[];
   packs: PackProgress[];
-  ranks: Array<{ level: number; name: string; emoji: string; color: string; minXp: number }>;
+  levels: Array<{ level: number; minXp: number }>;
   theme: Theme;
   title: string | null;
   themes: Array<Theme & { unlocked: boolean }>;
@@ -167,6 +163,9 @@ export type SessionItem = {
   prompt: string;
   choices: string[] | null;
   audioText: string | null;
+  answer: string;
+  context: string | null;
+  mnemonic: string | null;
 };
 
 export type Session = {

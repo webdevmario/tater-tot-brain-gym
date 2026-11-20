@@ -143,55 +143,69 @@ export default function Session() {
     }
   }
 
-  async function submitAnswer(userAnswer: string) {
+  // Graded on the iPad the instant a choice is tapped, so feedback never
+  // waits on the network. Same rule as isCorrect() in routes/sessions.ts;
+  // the server grades again when it records the answer.
+  function gradeLocally(userAnswer: string, answer: string) {
+    const norm = (t: string) =>
+      t.trim().toLowerCase().replace(/[.!?,;:'"]+$/g, "").replace(/\s+/g, " ");
+    return norm(userAnswer) === norm(answer);
+  }
+
+  function submitAnswer(userAnswer: string) {
     if (!item || busy) return;
     setBusy(true);
-    try {
-      const r = await api.post<AttemptResponse>(`/api/sessions/${sessionId}/attempts`, {
-        itemId: item.id,
-        userAnswer,
-        responseMs: clock.read(),
-      });
-      upcoming.current = fetchNext();
-      upcoming.current.catch(() => {}); // surfaced when advance() awaits it
-      const n = answered + 1;
-      setAnswered(n);
-      setReveal({ picked: userAnswer, answer: r.answer, correct: r.correct });
+    const correct = gradeLocally(userAnswer, item.answer);
+    const responseMs = clock.read();
 
-      const halfway = !!meta && meta.target >= 6 && n === Math.floor(meta.target / 2);
-      if (halfway) playSound("halftime");
+    // Save in the background; the next question is fetched once the
+    // answer is recorded (the server picks it based on this answer).
+    const saved = api.post<AttemptResponse>(`/api/sessions/${sessionId}/attempts`, {
+      itemId: item.id,
+      userAnswer,
+      responseMs,
+    });
+    upcoming.current = saved.then(() => fetchNext());
+    upcoming.current.catch(() => {}); // surfaced when advance() awaits it
+    saved.catch((e) => setError((e as Error).message));
 
-      if (r.correct) {
-        combo.current += 1;
-        const comboHit = COMBO_AT.has(combo.current);
-        playSound(comboHit ? "streak" : "correct");
+    const n = answered + 1;
+    setAnswered(n);
+    setReveal({ picked: userAnswer, answer: item.answer, correct });
+
+    const halfway = !!meta && meta.target >= 6 && n === Math.floor(meta.target / 2);
+    if (halfway) playSound("halftime");
+
+    if (correct) {
+      combo.current += 1;
+      const comboHit = COMBO_AT.has(combo.current);
+      playSound(comboHit ? "streak" : "correct");
+      const extra = comboHit ? `🔥 ${combo.current} in a row!` : halfway ? "Halfway there! 💪" : null;
+      setFeedback({ kind: "correct", text: PRAISE[Math.floor(Math.random() * PRAISE.length)], xp: 10, extra });
+      // A "bounce back" (right on something missed before) is only known
+      // to the server; add it to the sheet when the save comes back.
+      saved
+        .then((r) => {
+          if (r.bounceBack) {
+            setFeedback((f) => (f?.kind === "correct" ? { ...f, xp: r.xp, extra: "You bounced back on that one!" } : f));
+          }
+        })
+        .catch(() => {});
+      window.setTimeout(() => {
+        setBusy(false);
+        advance();
+      }, comboHit || halfway ? 1500 : 1100);
+    } else {
+      combo.current = 0;
+      playSound("wrong");
+      window.setTimeout(() => {
         setFeedback({
-          kind: "correct",
-          text: PRAISE[Math.floor(Math.random() * PRAISE.length)],
-          xp: r.xp,
-          extra: r.bounceBack
-            ? "You bounced back on that one!"
-            : comboHit
-            ? `🔥 ${combo.current} in a row!`
-            : halfway
-            ? "Halfway there! 💪"
-            : null,
+          kind: "teach",
+          data: { answer: item.answer, context: item.context, mnemonic: item.mnemonic },
+          yourAnswer: userAnswer,
         });
-        window.setTimeout(() => {
-          setBusy(false);
-          advance();
-        }, r.bounceBack || comboHit || halfway ? 1500 : 1000);
-      } else {
-        combo.current = 0;
-        playSound("wrong");
-        window.setTimeout(() => {
-          setFeedback({ kind: "teach", data: r.teachCard!, yourAnswer: userAnswer });
-          setBusy(false);
-        }, 700);
-      }
-    } catch (e) {
-      setError((e as Error).message);
-      setBusy(false);
+        setBusy(false);
+      }, 700);
     }
   }
 
@@ -278,6 +292,7 @@ export default function Session() {
       <FinishScreen
         result={result}
         cleared={cleared}
+        theme={meta.theme}
         onAgain={anotherRound}
         onDone={() => navigate(`/kid/${meta.kidId}`)}
       />

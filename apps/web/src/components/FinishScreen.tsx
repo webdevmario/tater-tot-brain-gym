@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { FinishResult } from "../lib/api";
+import type { FinishResult, Theme } from "../lib/api";
 import { playSound } from "../lib/sounds";
 import { confetti } from "../lib/confetti";
 import RankMedal from "./RankMedal";
@@ -12,6 +12,8 @@ type Props = {
   result: FinishResult;
   /** The round ended early because they'd done every question available. */
   cleared?: boolean;
+  /** The kid's color, for the level badge and XP bar. */
+  theme?: Theme;
   onAgain: () => void;
   onDone: () => void;
 };
@@ -33,10 +35,11 @@ function useCountUp(target: number, ms = 900) {
   return n;
 }
 
-export default function FinishScreen({ result, cleared = false, onAgain, onDone }: Props) {
+export default function FinishScreen({ result, cleared = false, theme, onAgain, onDone }: Props) {
   const xp = useCountUp(result.xpEarned);
   const [again, setAgain] = useState(false);
-  const { rank, rankBefore, rankUp } = result;
+  const { rank, rankUp } = result;
+  const accent = theme?.accent ?? "#1F7F7F";
 
   useEffect(() => {
     playSound(rankUp ? "level-up" : "session-end");
@@ -46,7 +49,7 @@ export default function FinishScreen({ result, cleared = false, onAgain, onDone 
   }, [rankUp, result.newBadges.length, result.breakdown.perfect]);
 
   const headline = rankUp
-    ? `You're a ${rank.name} now!`
+    ? `Level ${rank.level}!`
     : result.breakdown.perfect
     ? "Perfect round!"
     : cleared
@@ -65,14 +68,9 @@ export default function FinishScreen({ result, cleared = false, onAgain, onDone 
   return (
     <div className="safe-page min-h-[100dvh] max-w-3xl mx-auto flex flex-col items-center text-center">
       <div className="mt-6 animate-pop-in">
-        <RankMedal rank={rank} size="xl" />
+        <RankMedal level={rank.level} color={accent} size="xl" />
       </div>
       <h1 className="mt-5 text-5xl font-display font-bold text-teal-500 text-balance">{headline}</h1>
-      {rankUp && (
-        <p className="mt-2 text-xl text-teal-400">
-          You moved up from {rankBefore.emoji} {rankBefore.name}
-        </p>
-      )}
       {cleared && (
         <p className="mt-2 text-xl text-teal-400 text-balance">
           That's everything here for now. These come back for review in a day or two.
@@ -92,25 +90,23 @@ export default function FinishScreen({ result, cleared = false, onAgain, onDone 
           ))}
         </ul>
 
-        {rank.next && (
-          <div className="mt-6 text-left">
-            <XpBar
-              value={rank.xpIntoRank}
-              from={rankUp ? 0 : Math.max(0, rank.xpIntoRank - result.xpEarned)}
-              max={rank.xpForRank}
-              color={rank.color}
-            />
-            <p className="mt-2 text-teal-400 font-semibold">
-              {rank.next.minXp - result.totalXp} XP to {rank.next.emoji} {rank.next.name}
-            </p>
-          </div>
-        )}
+        <div className="mt-6 text-left">
+          <XpBar
+            value={rank.xpIntoRank}
+            from={rankUp ? 0 : Math.max(0, rank.xpIntoRank - result.xpEarned)}
+            max={rank.xpForRank}
+            color={accent}
+          />
+          <p className="mt-2 text-teal-400 font-semibold">
+            {rank.next.minXp - result.totalXp} XP to Level {rank.next.level}
+          </p>
+        </div>
       </div>
 
       {result.newBadges.length > 0 && (
         <div className="mt-5 w-full panel p-6">
           <p className="text-2xl font-display font-bold text-teal-500">
-            New trophy{result.newBadges.length > 1 ? "s" : ""}!
+            {result.newBadges.length > 1 ? "New trophies!" : "New trophy!"}
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-5">
             {result.newBadges.map((b, i) => (

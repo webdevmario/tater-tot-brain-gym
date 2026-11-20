@@ -47,7 +47,7 @@ export default function KidHome() {
   if (!data) return <KidHomeSkeleton />;
 
   const { kid, rank, week, packs, badges, stats, theme } = data;
-  const toNext = rank.next ? rank.next.minXp - data.totalXp : 0;
+  const toNext = rank.next.minXp - data.totalXp;
   const earned = badges.filter((b) => b.earnedAt);
   // Closest badges to earning — something concrete to aim for.
   const upNext = badges
@@ -75,7 +75,7 @@ export default function KidHome() {
       </nav>
 
       <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr]">
-        {/* Rank card: the one loud thing on this screen. */}
+        {/* Level card: the one loud thing on this screen. */}
         <section
           className="relative overflow-hidden rounded-[2rem] p-6 sm:p-7 text-white"
           style={{ ...themeSurface(theme), boxShadow: `0 6px 0 0 ${theme.shade}` }}
@@ -91,25 +91,16 @@ export default function KidHome() {
           </div>
 
           <div className="mt-6 flex items-center gap-5">
-            <RankMedal rank={rank} size="lg" />
-            <div className="min-w-0 flex-1">
-              <p className="text-white/80 font-semibold">Rank {rank.level}</p>
-              <p className="text-4xl font-display font-bold leading-tight">
-                {rank.name}
-                {rank.stars > 0 && ` ★${rank.stars}`}
-              </p>
-              <p className="text-white/85 mt-1 font-semibold">{data.totalXp.toLocaleString()} XP</p>
-            </div>
+            <RankMedal level={rank.level} color={theme.accent} size="lg" />
+            <p className="min-w-0 flex-1 text-4xl font-display font-bold leading-tight">Level {rank.level}</p>
           </div>
 
-          {rank.next && (
-            <div className="mt-5">
-              <XpBar value={rank.xpIntoRank} max={rank.xpForRank} color="#F9CC7A" className="!bg-white/25" />
-              <p className="mt-2 text-white/90 font-semibold">
-                {toNext} XP to {rank.next.emoji} {rank.next.name}
-              </p>
-            </div>
-          )}
+          <div className="mt-5">
+            <XpBar value={rank.xpIntoRank} max={rank.xpForRank} color="#F9CC7A" className="!bg-white/25" />
+            <p className="mt-2 text-white/90 font-semibold">
+              {toNext} XP to Level {rank.next.level}
+            </p>
+          </div>
         </section>
 
         <section className="panel p-6 flex flex-col justify-between gap-5">

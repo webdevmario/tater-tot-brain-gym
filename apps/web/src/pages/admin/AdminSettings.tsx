@@ -13,7 +13,7 @@ const SOUNDS: Array<[SoundName, string]> = [
   ["streak", "Streak"],
   ["halftime", "Halfway"],
   ["session-end", "Workout done"],
-  ["level-up", "Rank up"],
+  ["level-up", "Level up"],
 ];
 
 function SpeechSettings() {

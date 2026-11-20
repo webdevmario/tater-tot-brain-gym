@@ -24,10 +24,10 @@ It is not a game, but it borrows what makes good learning apps sticky:
 
 - **Lesson loop (Duolingo-style):** fixed-length rounds with a progress
   bar, instant feedback, and a celebration screen at the end.
-- **XP and ranks:** 10 XP per correct answer, 2 XP for a wrong one
+- **XP and levels:** 10 XP per correct answer, 2 XP for a wrong one
   (trying counts), bonuses for finishing and for perfect rounds. XP
-  climbs a 10-step potato rank ladder (Seedling → Golden Spud, then
-  prestige stars).
+  climbs plain numbered levels (Level 1, 2, 3…); past Level 10 every
+  1,500 XP is another level.
 - **Weekly goal ring (Apple Fitness-style):** per-kid workouts-per-week
   goal, plus a day streak that never shames when it resets.
 - **Trophies:** ~25 badges for workouts, facts learned and mastered,
@@ -55,7 +55,7 @@ It is not a game, but it borrows what makes good learning apps sticky:
   targets, an on-screen number pad for math, and read-aloud buttons
 - **Kid customization**: each kid picks a color theme, emoji avatar, and
   a title from their earned trophies. Six colors are free; eight more
-  unlock with ranks (Galaxy, Neon, Lava, Gold…)
+  unlock with levels (Galaxy, Neon, Lava, Gold…)
 - **Mac voice**: read-aloud questions are spoken by the host Mac's `say` voice and cached, so
   every iPad sounds the same. Pick the voice in admin Settings; a free
   Premium voice (System Settings → Accessibility → Spoken Content →
@@ -248,7 +248,7 @@ pnpm db:backup
 pnpm test-kid:reset
 ```
 
-The **test profile** ("Test Tot", marked 🧪 Test) is for grown-ups to
+The **test profile** ("Test Tot", marked Test) is for grown-ups to
 play through new features. Resetting it deletes its rounds, answers,
 review schedule and trophies, restores the default look, and turns on
 every pack. Only a profile flagged as a test profile can be reset.
@@ -357,7 +357,7 @@ Working end to end: kid profiles, admin (packs, kids, progress), the
 session engine with spaced repetition, three question types (multiple
 choice, type-the-answer, math drill; the spelling bee was retired in
 favor of a "pick the missing word" sight-word pack), progression (XP,
-ranks, streaks, weekly goal, trophies), and PWA install.
+levels, streaks, weekly goal, trophies), and PWA install.
 
 Not built yet: the "matching" question type, avatar filters/stickers.
 

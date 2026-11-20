@@ -163,6 +163,11 @@ router.get("/:id/next-item", async (req, res) => {
       prompt: item.prompt,
       choices: item.choices ? JSON.parse(item.choices) : null,
       audioText: item.audioText,
+      // Sent up front so the iPad can show right/wrong the instant a
+      // choice is tapped; the server still grades and records the answer.
+      answer: item.answer,
+      context: item.context,
+      mnemonic: item.mnemonic,
     },
   });
 });
@@ -275,7 +280,7 @@ router.patch("/:id", async (req, res) => {
     totalXp: progress.totalXp,
     rankBefore: before,
     rank: progress.rank,
-    rankUp: progress.rank.level > before.level || progress.rank.stars > before.stars,
+    rankUp: progress.rank.level > before.level,
     streak: progress.streak,
     week: progress.week,
     newBadges,

@@ -93,7 +93,7 @@ export default function Customize() {
         <div className="min-w-0">
           <h1 className="text-4xl font-display font-bold truncate">{kid.firstName}</h1>
           <p className="text-xl font-display font-semibold text-white/90 mt-1">
-            {data.title ?? `${rank.emoji} ${rank.name}`}
+            {data.title ?? `Level ${rank.level}`}
           </p>
         </div>
       </section>
@@ -106,7 +106,7 @@ export default function Customize() {
             theme={t}
             unlocked={t.unlocked}
             selected={kid.theme === t.id}
-            unlockRank={data.ranks.find((r) => r.level === t.minLevel)}
+
             onPick={() => save({ theme: t.id })}
           />
         ))}
@@ -115,7 +115,7 @@ export default function Customize() {
       <h2 className="text-2xl font-display font-bold text-teal-500 mt-8 mb-1">My title</h2>
       <p className="text-teal-400 mb-3">Show off a trophy you've earned under your name.</p>
       <div className="flex flex-wrap gap-2">
-        <TitleChip label={`${rank.emoji} ${rank.name}`} hint="my rank" selected={!kid.titleBadge} onPick={() => save({ titleBadge: null })} />
+        <TitleChip label={`Level ${rank.level}`} hint="my level" selected={!kid.titleBadge} onPick={() => save({ titleBadge: null })} />
         {earned.map((b) => (
           <TitleChip
             key={b.code}
@@ -164,13 +164,11 @@ function ThemeSwatch({
   theme,
   unlocked,
   selected,
-  unlockRank,
   onPick,
 }: {
   theme: Theme;
   unlocked: boolean;
   selected: boolean;
-  unlockRank?: { name: string; emoji: string; color: string; level: number };
   onPick: () => void;
 }) {
   return (
@@ -194,9 +192,9 @@ function ThemeSwatch({
         </span>
       )}
       <span className="relative font-display font-semibold leading-tight drop-shadow">{theme.name}</span>
-      {!unlocked && unlockRank && (
+      {!unlocked && (
         <span className="relative mt-1 self-start max-w-full truncate rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-teal-600">
-          🔒 {unlockRank.name}
+          🔒 Level {theme.minLevel}
         </span>
       )}
     </button>

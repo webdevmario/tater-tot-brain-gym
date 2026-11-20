@@ -68,7 +68,7 @@ export default function Home() {
               />
               {kid.isTest && (
                 <span className="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-teal-600">
-                  🧪 Test
+                  Test
                 </span>
               )}
               <h2 className="text-3xl font-display font-bold text-teal-600 truncate max-w-full px-4">
@@ -81,8 +81,8 @@ export default function Home() {
               )}
               {kid.summary && (
                 <div className="flex items-center gap-2 text-teal-500">
-                  <RankMedal rank={kid.summary.rank} size="sm" />
-                  <span className="font-display font-semibold">{kid.summary.rank.name}</span>
+                  <RankMedal level={kid.summary.rank.level} color={theme.accent} size="sm" />
+                  <span className="font-display font-semibold">Level {kid.summary.rank.level}</span>
                   {kid.summary.streak > 0 && (
                     <span
                       className="ml-1 rounded-full bg-spud-50 px-2.5 py-0.5 text-sm font-bold text-spud-500"

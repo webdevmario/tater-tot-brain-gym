@@ -5,7 +5,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../db.js";
-import { BADGES, RANKS, getKidProgress } from "../services/progression.js";
+import { BADGES, LEVELS, getKidProgress } from "../services/progression.js";
 import { THEMES, themeById } from "../services/themes.js";
 
 const router = Router();
@@ -116,7 +116,7 @@ router.get("/:id/progress", async (req, res) => {
     kid: kidFields,
     ...rest,
     packs,
-    ranks: RANKS,
+    levels: LEVELS,
     theme: themeById(kid.theme),
     title: titleLabel(kid.titleBadge, progress.badges),
     themes: THEMES.map((t) => ({ ...t, unlocked: progress.rank.level >= t.minLevel })),

@@ -1,8 +1,8 @@
 /**
- * Progression: XP, ranks, streaks, weekly goal, and badges.
+ * Progression: XP, levels, streaks, weekly goal, and badges.
  *
  * Design rules (kid-facing, so these matter more than the math):
- *   - Nothing is ever taken away. No hearts, no XP loss, no rank demotion.
+ *   - Nothing is ever taken away. No hearts, no XP loss, no level going down.
  *   - Trying counts. A wrong answer still earns a little XP.
  *   - No time pressure anywhere. Speed never affects XP or badges.
  *   - Streaks are shown when alive and quietly reset otherwise; the UI
@@ -46,67 +46,54 @@ export function computeSessionXp(
   return { ...b, total: b.correct + b.tried + b.finish + b.perfect };
 }
 
-// ---------- Ranks ----------
-// Early ranks come fast (first round gets you to Sprout) so a new kid
-// sees progress immediately; later ones stretch out over weeks.
+// ---------- Levels ----------
+// Plain numbered levels. Early ones come fast (the first round gets you
+// to Level 2) so a new kid sees progress right away; later ones stretch
+// out over weeks. After Level 10 every LATE_STEP XP is another level, so
+// the climb never ends.
 
-export type RankDef = { level: number; name: string; emoji: string; minXp: number; color: string };
+export type LevelDef = { level: number; minXp: number };
 
-export const RANKS: RankDef[] = [
-  { level: 1, name: "Seedling", emoji: "🌱", minXp: 0, color: "#7BBF6A" },
-  { level: 2, name: "Sprout", emoji: "🌿", minXp: 60, color: "#3FA36B" },
-  { level: 3, name: "Tater Tot", emoji: "🥔", minXp: 200, color: "#C9963F" },
-  { level: 4, name: "Hash Brown", emoji: "🧇", minXp: 400, color: "#B87A2E" },
-  { level: 5, name: "Curly Fry", emoji: "🌀", minXp: 700, color: "#E89020" },
-  { level: 6, name: "Super Fry", emoji: "🍟", minXp: 1100, color: "#E54936" },
-  { level: 7, name: "Baked Potato", emoji: "🔥", minXp: 1600, color: "#C2410C" },
-  { level: 8, name: "Loaded Potato", emoji: "⭐", minXp: 2300, color: "#7C3AED" },
-  { level: 9, name: "Mega Spud", emoji: "🚀", minXp: 3200, color: "#2563EB" },
-  { level: 10, name: "Golden Spud", emoji: "👑", minXp: 4400, color: "#D4A017" },
+export const LEVELS: LevelDef[] = [
+  { level: 1, minXp: 0 },
+  { level: 2, minXp: 60 },
+  { level: 3, minXp: 200 },
+  { level: 4, minXp: 400 },
+  { level: 5, minXp: 700 },
+  { level: 6, minXp: 1100 },
+  { level: 7, minXp: 1600 },
+  { level: 8, minXp: 2300 },
+  { level: 9, minXp: 3200 },
+  { level: 10, minXp: 4400 },
 ];
 
-// After Golden Spud, every PRESTIGE_STEP XP adds a star so the ladder never ends.
-const PRESTIGE_STEP = 1500;
+const LATE_STEP = 1500;
 
 export type RankInfo = {
   level: number;
-  name: string;
-  emoji: string;
-  color: string;
-  stars: number; // Golden Spud prestige stars
   minXp: number;
-  next: { name: string; emoji: string; minXp: number } | null;
+  next: { level: number; minXp: number };
   xpIntoRank: number;
-  xpForRank: number; // size of this rank's band
+  xpForRank: number; // size of this level's band
 };
 
+/** XP needed to reach a level (any level, including past 10). */
+function minXpFor(level: number): number {
+  if (level <= LEVELS.length) return LEVELS[level - 1].minXp;
+  return LEVELS[LEVELS.length - 1].minXp + (level - LEVELS.length) * LATE_STEP;
+}
+
 export function rankForXp(xp: number): RankInfo {
-  let idx = 0;
-  for (let i = 0; i < RANKS.length; i++) if (xp >= RANKS[i].minXp) idx = i;
-  const r = RANKS[idx];
-  const top = RANKS[RANKS.length - 1];
-
-  if (idx < RANKS.length - 1) {
-    const n = RANKS[idx + 1];
-    return {
-      ...r,
-      stars: 0,
-      next: { name: n.name, emoji: n.emoji, minXp: n.minXp },
-      xpIntoRank: xp - r.minXp,
-      xpForRank: n.minXp - r.minXp,
-    };
-  }
-
-  const beyond = xp - top.minXp;
-  const stars = Math.floor(beyond / PRESTIGE_STEP);
-  const bandStart = top.minXp + stars * PRESTIGE_STEP;
+  let level = 1;
+  while (xp >= minXpFor(level + 1)) level++;
+  const minXp = minXpFor(level);
+  const nextMin = minXpFor(level + 1);
   return {
-    ...r,
-    stars,
-    minXp: bandStart,
-    next: { name: `Golden Spud ★${stars + 1}`, emoji: "👑", minXp: bandStart + PRESTIGE_STEP },
-    xpIntoRank: xp - bandStart,
-    xpForRank: PRESTIGE_STEP,
+    level,
+    minXp,
+    next: { level: level + 1, minXp: nextMin },
+    xpIntoRank: xp - minXp,
+    xpForRank: nextMin - minXp,
   };
 }
 
