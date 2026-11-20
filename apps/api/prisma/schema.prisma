@@ -30,6 +30,8 @@ model Kid {
   grade           Int      // current grade level (e.g. 3 for a kid working at 3rd grade)
   sessionMinutes  Int      @default(12) // legacy: replaced by roundSize (no timers in the kid UI)
   roundSize       Int      @default(10) // questions per workout round
+  theme           String   @default("teal") // kid-chosen color theme (see services/themes.ts)
+  titleBadge      String?  // badge code the kid shows as their title
   weeklyGoal      Int      @default(3)  // target sessions per week — kid aims to do at least this many sessions per week
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

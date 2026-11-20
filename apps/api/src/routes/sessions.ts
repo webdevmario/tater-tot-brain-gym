@@ -10,6 +10,7 @@ import {
   getKidProgress,
   rankForXp,
 } from "../services/progression.js";
+import { themeById, themesUnlockedBetween } from "../services/themes.js";
 
 const router = Router();
 
@@ -83,7 +84,7 @@ async function sessionProgress(sessionId: string) {
         orderBy: { createdAt: "desc" },
         select: { itemId: true, correct: true },
       },
-      kid: { select: { id: true, firstName: true } },
+      kid: { select: { id: true, firstName: true, theme: true } },
     },
   });
   if (!session) return null;
@@ -108,6 +109,7 @@ router.get("/:id", async (req, res) => {
     answered: p.answered,
     correct: p.correct,
     ended: !!p.session.endedAt,
+    theme: themeById(p.session.kid.theme),
   });
 });
 
@@ -142,6 +144,14 @@ router.get("/:id/next-item", async (req, res) => {
       prompt: item.prompt,
       choices: item.choices ? JSON.parse(item.choices) : null,
       audioText: item.audioText,
+      // Spelling bees read "word, sentence, word". The example sentence
+      // isn't a spoiler for spelling, so send it up front for that type.
+      sentence:
+        pack?.questionType === "spelling-bee" &&
+        item.context &&
+        item.context.toLowerCase().includes(item.prompt.toLowerCase())
+          ? item.context
+          : null,
     },
   });
 });
@@ -258,6 +268,7 @@ router.patch("/:id", async (req, res) => {
     streak: progress.streak,
     week: progress.week,
     newBadges,
+    newThemes: themesUnlockedBetween(before.level, progress.rank.level),
   });
 });
 

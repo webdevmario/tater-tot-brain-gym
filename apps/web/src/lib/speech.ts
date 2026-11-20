@@ -1,60 +1,89 @@
-// Text-to-speech for spelling words and read-aloud prompts.
+// Spoken words and sentences.
 //
-// Voices ranked by intelligibility for kids. Apple's enhanced/premium
-// voices are dramatically clearer than the default robotic fallback;
-// Google's en-US is next best across Chrome/Android.
+// First choice: a clip rendered by the Mac's voice (/api/tts), so every
+// iPad hears the same good voice without downloading anything. If the
+// server can't speak, fall back to the device's own speech engine.
+
+import { loadBuffer, playBuffer } from "./audio";
+
+export type Pace = "normal" | "slow";
+
+function clipUrl(text: string, pace: Pace) {
+  return `/api/tts?rate=${pace}&text=${encodeURIComponent(text)}`;
+}
+
+let current: AudioBufferSourceNode | null = null;
+let token = 0;
+
+/** Warm the cache so the first tap plays instantly. */
+export function prefetchSpeech(text: string, pace: Pace = "normal"): void {
+  if (text) loadBuffer(clipUrl(text, pace));
+}
+
+export async function speak(text: string, pace: Pace = "normal"): Promise<void> {
+  stopSpeaking();
+  const mine = ++token;
+  const buf = await loadBuffer(clipUrl(text, pace));
+  if (mine !== token) return; // something newer was asked for meanwhile
+  if (buf) {
+    current = playBuffer(buf);
+    return;
+  }
+  deviceSpeak(text, pace === "slow" ? 0.55 : 0.85);
+}
+
+export function stopSpeaking(): void {
+  token++;
+  try {
+    current?.stop();
+  } catch {
+    // already ended
+  }
+  current = null;
+  if (canDeviceSpeak) window.speechSynthesis.cancel();
+}
+
+/** Spelling-bee format: word, sentence, word. */
+export function spellingLine(word: string, sentence: string | null): string {
+  return sentence ? `${word}. ${sentence} ${word}.` : word;
+}
+
+// ---- Device fallback (Web Speech) ----
+
+const canDeviceSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
+
 const VOICE_PREFERENCE = [
+  /Ava \(Premium\)/i,
+  /Zoe \(Premium\)/i,
   /Samantha \(Premium\)/i,
+  /\(Premium\)/i,
   /Samantha \(Enhanced\)/i,
-  /Karen \(Premium\)/i,
-  /Karen \(Enhanced\)/i,
-  /Daniel \(Premium\)/i,
-  /Daniel \(Enhanced\)/i,
+  /\(Enhanced\)/i,
   /Samantha/i,
-  /Karen/i,
-  /Daniel/i,
   /Google US English/i,
-  /Google UK English Female/i,
-  /Microsoft Aria/i,
-  /Microsoft Jenny/i,
+  /Microsoft (Aria|Jenny)/i,
 ];
 
-let cachedVoice: SpeechSynthesisVoice | undefined;
-
-function pickVoice(): SpeechSynthesisVoice | undefined {
-  if (cachedVoice) return cachedVoice;
-  const voices = window.speechSynthesis.getVoices();
-  for (const pattern of VOICE_PREFERENCE) {
-    const v = voices.find((v) => pattern.test(v.name));
-    if (v) return (cachedVoice = v);
+function pickDeviceVoice(): SpeechSynthesisVoice | undefined {
+  const voices = window.speechSynthesis.getVoices().filter((v) => v.lang.startsWith("en"));
+  for (const re of VOICE_PREFERENCE) {
+    const v = voices.find((v) => re.test(v.name));
+    if (v) return v;
   }
-  // Any local en-* voice (avoids slow remote voices).
-  cachedVoice =
-    voices.find((v) => v.lang.startsWith("en") && v.localService) ??
-    voices.find((v) => v.lang.startsWith("en"));
-  return cachedVoice;
+  return voices.find((v) => v.localService) ?? voices[0];
 }
 
-export const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
-
-if (canSpeak) {
-  // Voices load asynchronously; reset the cache when the list arrives.
-  window.speechSynthesis.addEventListener?.("voiceschanged", () => {
-    cachedVoice = undefined;
-  });
-}
-
-export function speak(text: string, rate = 0.85): void {
-  if (!canSpeak) return;
+function deviceSpeak(text: string, rate: number) {
+  if (!canDeviceSpeak) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.rate = rate;
   u.lang = "en-US";
-  const voice = pickVoice();
-  if (voice) u.voice = voice;
+  const v = pickDeviceVoice();
+  if (v) u.voice = v;
   window.speechSynthesis.speak(u);
 }
 
-export function stopSpeaking(): void {
-  if (canSpeak) window.speechSynthesis.cancel();
-}
+// Speech is available if either path can work; the server path needs
+// only Web Audio, which every supported browser has.
+export const canSpeak = typeof window !== "undefined";

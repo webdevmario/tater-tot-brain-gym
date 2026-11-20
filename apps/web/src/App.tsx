@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import KidHome from "./pages/KidHome";
 import Session from "./pages/Session";
 import Trophies from "./pages/Trophies";
+import Customize from "./pages/Customize";
 import AdminGate from "./pages/admin/AdminGate";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminKids from "./pages/admin/AdminKids";
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/kid/:kidId" element={<KidHome />} />
         <Route path="/kid/:kidId/trophies" element={<Trophies />} />
+        <Route path="/kid/:kidId/style" element={<Customize />} />
         <Route path="/session/:sessionId" element={<Session />} />
         <Route path="/admin" element={<AdminGate />} />
         <Route path="/admin/*" element={<AdminLayout />}>

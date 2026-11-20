@@ -41,9 +41,28 @@ export type Kid = {
   grade: number;
   sessionMinutes: number;
   roundSize: number;
+  theme: string;
+  titleBadge: string | null;
   weeklyGoal: number;
   enabledPacks?: Array<{ packId: string; enabled: boolean; pack: Pack }>;
-  summary?: { rank: Rank; totalXp: number; streak: number; practicedToday: boolean } | null;
+  summary?: {
+    rank: Rank;
+    totalXp: number;
+    streak: number;
+    practicedToday: boolean;
+    theme: Theme;
+    title: string | null;
+  } | null;
+};
+
+export type Theme = {
+  id: string;
+  name: string;
+  minLevel: number;
+  gradient: string;
+  accent: string;
+  shade: string;
+  pattern?: "stars" | "sparkles";
 };
 
 export type Rank = {
@@ -91,6 +110,9 @@ export type KidProgress = {
   badges: BadgeProgress[];
   packs: PackProgress[];
   ranks: Array<{ level: number; name: string; emoji: string; color: string; minXp: number }>;
+  theme: Theme;
+  title: string | null;
+  themes: Array<Theme & { unlocked: boolean }>;
 };
 
 export type FinishResult = {
@@ -106,6 +128,7 @@ export type FinishResult = {
   streak: number;
   week: Week;
   newBadges: Array<{ code: string; label: string; emoji: string; description: string }>;
+  newThemes: Theme[];
 };
 
 export type Pack = {
@@ -143,6 +166,7 @@ export type SessionItem = {
   prompt: string;
   choices: string[] | null;
   audioText: string | null;
+  sentence: string | null; // spelling bee example sentence
 };
 
 export type Session = {

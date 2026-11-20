@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api, type FinishResult, type SessionItem } from "../lib/api";
 import { isMuted, playSound, setMuted } from "../lib/sounds";
-import { canSpeak, speak, stopSpeaking } from "../lib/speech";
+import { canSpeak, prefetchSpeech, speak, stopSpeaking } from "../lib/speech";
 import MultipleChoice from "../components/questions/MultipleChoice";
 import TypeAnswer from "../components/questions/TypeAnswer";
 import SpellingBee from "../components/questions/SpellingBee";
@@ -11,6 +11,8 @@ import type { QuestionProps, Reveal } from "../components/questions/types";
 import TeachCard from "../components/TeachCard";
 import FinishScreen from "../components/FinishScreen";
 import { subjectStyle } from "../components/subjects";
+import { DEFAULT_THEME } from "../lib/theme";
+import type { Theme } from "../lib/api";
 
 // A workout is a fixed round of questions with no clock anywhere.
 // Correct answers glide to the next question; misses open a "let's
@@ -25,6 +27,7 @@ type SessionMeta = {
   answered: number;
   correct: number;
   ended: boolean;
+  theme: Theme;
 };
 
 type AttemptResponse = {
@@ -97,6 +100,7 @@ export default function Session() {
         return finish();
       }
       setItem(data.item);
+      if (data.item.questionType !== "spelling-bee") prefetchSpeech(data.item.prompt);
       questionStart.current = Date.now();
     } catch (e) {
       setError((e as Error).message);
@@ -267,7 +271,7 @@ export default function Session() {
         >
           ✕
         </button>
-        <RoundProgress answered={answered} target={meta.target} />
+        <RoundProgress answered={answered} target={meta.target} theme={meta.theme ?? DEFAULT_THEME} />
         <button
           onClick={toggleMute}
           className="w-12 h-12 shrink-0 rounded-full grid place-items-center text-2xl hover:bg-cream-100"
@@ -361,7 +365,7 @@ export default function Session() {
 
 // One segment per question, filled as they're answered. Shows how far
 // along the round is, never how much time is left.
-function RoundProgress({ answered, target }: { answered: number; target: number }) {
+function RoundProgress({ answered, target, theme }: { answered: number; target: number; theme: Theme }) {
   const pct = Math.min(100, (answered / target) * 100);
   return (
     <div
@@ -373,8 +377,12 @@ function RoundProgress({ answered, target }: { answered: number; target: number 
       aria-label={`${answered} of ${target} questions done`}
     >
       <div
-        className="h-full rounded-full bg-spud-300 transition-[width] duration-500 ease-out"
-        style={{ width: `${pct}%`, boxShadow: "inset 0 -4px 0 rgba(199,115,21,0.35), inset 0 4px 0 rgba(255,255,255,0.4)" }}
+        className="h-full rounded-full transition-[width] duration-500 ease-out"
+        style={{
+          width: `${pct}%`,
+          background: theme.accent,
+          boxShadow: "inset 0 -4px 0 rgba(0,0,0,0.18), inset 0 4px 0 rgba(255,255,255,0.3)",
+        }}
       />
     </div>
   );

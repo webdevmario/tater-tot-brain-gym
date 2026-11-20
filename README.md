@@ -53,6 +53,14 @@ It is not a game, but it borrows what makes good learning apps sticky:
   later in the session
 - **iPad-first**: installable to the Home Screen (PWA), big touch
   targets, an on-screen number pad for math, and read-aloud buttons
+- **Kid customization**: each kid picks a color theme, emoji avatar, and
+  a title from their earned trophies. Six colors are free; eight more
+  unlock with ranks (Galaxy, Neon, Lava, Gold…)
+- **Mac voice**: spelling words ("word, sentence, word") and read-aloud
+  questions are spoken by the host Mac's `say` voice and cached, so
+  every iPad sounds the same. Pick the voice in admin Settings; a free
+  Premium voice (System Settings → Accessibility → Spoken Content →
+  Manage Voices) makes a big difference
 - **Per-grade item tagging**: each item is tagged by grade level
   independent of its pack, so a kid set to grade 3 sees mostly grade 3
   items with grade 2 mixed in for review

@@ -5,7 +5,8 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../db.js";
-import { RANKS, getKidProgress } from "../services/progression.js";
+import { BADGES, RANKS, getKidProgress } from "../services/progression.js";
+import { THEMES, themeById } from "../services/themes.js";
 
 const router = Router();
 
@@ -47,7 +48,14 @@ router.get("/", async (req, res) => {
         return {
           ...k,
           summary: p
-            ? { rank: p.rank, totalXp: p.totalXp, streak: p.streak, practicedToday: p.practicedToday }
+            ? {
+                rank: p.rank,
+                totalXp: p.totalXp,
+                streak: p.streak,
+                practicedToday: p.practicedToday,
+                theme: themeById(k.theme),
+                title: titleLabel(k.titleBadge, p.badges),
+              }
             : null,
         };
       })
@@ -103,7 +111,61 @@ router.get("/:id/progress", async (req, res) => {
     .sort((a, b) => a.title.localeCompare(b.title));
 
   const { enabledPacks: _omit, ...kidFields } = kid;
-  res.json({ kid: kidFields, ...rest, packs, ranks: RANKS });
+  res.json({
+    kid: kidFields,
+    ...rest,
+    packs,
+    ranks: RANKS,
+    theme: themeById(kid.theme),
+    title: titleLabel(kid.titleBadge, progress.badges),
+    themes: THEMES.map((t) => ({ ...t, unlocked: progress.rank.level >= t.minLevel })),
+  });
+});
+
+/** The kid's chosen title, only if that badge is actually earned. */
+function titleLabel(code: string | null, badges: Array<{ code: string; label: string; earnedAt: Date | null }>) {
+  if (!code) return null;
+  const b = badges.find((x) => x.code === code && x.earnedAt);
+  return b ? b.label : null;
+}
+
+// Kid-facing customization: color theme, emoji avatar, title. Locked
+// themes and unearned titles are rejected so the rules can't be skipped.
+const StyleSchema = z.object({
+  theme: z.string().max(20).optional(),
+  avatarEmoji: z.string().min(1).max(16).optional(),
+  titleBadge: z.string().max(40).nullable().optional(),
+});
+
+router.patch("/:id/style", async (req, res) => {
+  const parsed = StyleSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.format() });
+  const progress = await getKidProgress(req.params.id);
+  if (!progress) return res.status(404).json({ error: "Not found" });
+
+  const data: Record<string, unknown> = {};
+  const { theme, avatarEmoji, titleBadge } = parsed.data;
+  if (theme !== undefined) {
+    const t = THEMES.find((x) => x.id === theme);
+    if (!t) return res.status(400).json({ error: "Unknown theme" });
+    if (progress.rank.level < t.minLevel) return res.status(403).json({ error: "Theme is locked" });
+    data.theme = theme;
+  }
+  if (avatarEmoji !== undefined) {
+    data.avatarEmoji = avatarEmoji;
+    data.avatarPath = null; // emoji replaces a photo, same as in admin
+  }
+  if (titleBadge !== undefined) {
+    if (titleBadge !== null) {
+      const known = BADGES.some((b) => b.code === titleBadge);
+      const earned = progress.badges.some((b) => b.code === titleBadge && b.earnedAt);
+      if (!known || !earned) return res.status(403).json({ error: "Title not earned yet" });
+    }
+    data.titleBadge = titleBadge;
+  }
+
+  const kid = await prisma.kid.update({ where: { id: req.params.id }, data });
+  res.json(kid);
 });
 
 router.get("/:id", async (req, res) => {

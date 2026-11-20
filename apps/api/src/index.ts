@@ -7,6 +7,7 @@ import kidsRouter from "./routes/kids.js";
 import packsRouter from "./routes/packs.js";
 import sessionsRouter from "./routes/sessions.js";
 import adminRouter from "./routes/admin.js";
+import ttsRouter from "./routes/tts.js";
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 4000);
@@ -36,6 +37,7 @@ app.use("/api/kids", kidsRouter);
 app.use("/api/packs", packsRouter);
 app.use("/api/sessions", sessionsRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/tts", ttsRouter);
 
 const serveStatic = existsSync(STATIC_DIR);
 if (serveStatic) {

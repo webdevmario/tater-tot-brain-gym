@@ -7,6 +7,7 @@ import XpBar from "../components/XpBar";
 import WeekRing from "../components/WeekRing";
 import BadgeTile from "../components/BadgeTile";
 import { subjectStyle } from "../components/subjects";
+import { themeButton, themeSurface } from "../lib/theme";
 
 export default function KidHome() {
   const { kidId } = useParams();
@@ -51,7 +52,7 @@ export default function KidHome() {
     return <div className="min-h-[100dvh] grid place-items-center text-teal-300">Loading…</div>;
   }
 
-  const { kid, rank, week, packs, badges, stats } = data;
+  const { kid, rank, week, packs, badges, stats, theme } = data;
   const toNext = rank.next ? rank.next.minXp - data.totalXp : 0;
   const earned = badges.filter((b) => b.earnedAt);
   // Closest badges to earning — something concrete to aim for.
@@ -69,23 +70,30 @@ export default function KidHome() {
         <Link to="/" className="btn-secondary !py-2 !px-4 !text-base">
           ← Switch kid
         </Link>
-        <Link to={`/kid/${kid.id}/trophies`} className="btn-secondary !py-2 !px-4 !text-base">
-          🏆 Trophies <span className="text-teal-300">{earned.length}</span>
-        </Link>
+        <div className="flex gap-2">
+          <Link to={`/kid/${kid.id}/style`} className="btn-secondary !py-2 !px-4 !text-base">
+            🎨 Customize
+          </Link>
+          <Link to={`/kid/${kid.id}/trophies`} className="btn-secondary !py-2 !px-4 !text-base">
+            🏆 Trophies <span className="text-teal-300">{earned.length}</span>
+          </Link>
+        </div>
       </nav>
 
       <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr]">
         {/* Rank card: the one loud thing on this screen. */}
         <section
           className="relative overflow-hidden rounded-[2rem] p-6 sm:p-7 text-white"
-          style={{
-            background: `linear-gradient(140deg, ${rank.color} 0%, #0F5F5F 100%)`,
-            boxShadow: "0 6px 0 0 rgba(10,72,72,0.85)",
-          }}
+          style={{ ...themeSurface(theme), boxShadow: `0 6px 0 0 ${theme.shade}` }}
         >
           <div className="flex items-center gap-4">
-            <KidAvatar kid={kid} className="w-16 h-16 !rounded-full !border-white/70" emojiClassName="text-4xl" />
-            <h1 className="text-4xl sm:text-5xl font-display font-bold truncate">Hi, {kid.firstName}!</h1>
+            <Link to={`/kid/${kid.id}/style`} aria-label="Customize my profile">
+              <KidAvatar kid={kid} className="w-20 h-20 !rounded-full !border-4 !border-white/80 bg-white" emojiClassName="text-5xl" />
+            </Link>
+            <div className="min-w-0">
+              <h1 className="text-4xl sm:text-5xl font-display font-bold truncate">Hi, {kid.firstName}!</h1>
+              {data.title && <p className="text-lg font-display font-semibold text-white/90">{data.title}</p>}
+            </div>
           </div>
 
           <div className="mt-6 flex items-center gap-5">
@@ -135,7 +143,8 @@ export default function KidHome() {
           <button
             onClick={() => start(null)}
             disabled={!!starting}
-            className="btn-spud w-full mt-6 !text-3xl !py-6 !rounded-3xl"
+            className="btn w-full mt-6 !text-3xl !py-6 !rounded-3xl"
+            style={themeButton(theme)}
           >
             {starting === "mixed" ? "Getting ready…" : "💪 Start workout"}
           </button>

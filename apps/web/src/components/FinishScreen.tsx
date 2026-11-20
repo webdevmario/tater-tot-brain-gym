@@ -5,6 +5,7 @@ import { confetti } from "../lib/confetti";
 import RankMedal from "./RankMedal";
 import XpBar from "./XpBar";
 import WeekRing from "./WeekRing";
+import { themeSurface } from "../lib/theme";
 
 type Props = {
   result: FinishResult;
@@ -35,7 +36,7 @@ export default function FinishScreen({ result, onAgain, onDone }: Props) {
   const { rank, rankBefore, rankUp } = result;
 
   useEffect(() => {
-    playSound("session-end");
+    playSound(rankUp ? "level-up" : "session-end");
     if (rankUp || result.newBadges.length > 0 || result.breakdown.perfect > 0) {
       window.setTimeout(() => confetti(), 250);
     }
@@ -112,6 +113,26 @@ export default function FinishScreen({ result, onAgain, onDone }: Props) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {result.newThemes.length > 0 && (
+        <div className="mt-5 w-full panel p-6">
+          <p className="text-2xl font-display font-bold text-teal-500">
+            New color{result.newThemes.length > 1 ? "s" : ""} unlocked!
+          </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-4">
+            {result.newThemes.map((t, i) => (
+              <div
+                key={t.id}
+                className="w-32 h-20 rounded-2xl p-2 flex items-end text-white font-display font-semibold animate-pop-in"
+                style={{ ...themeSurface(t), animationDelay: `${700 + i * 200}ms` }}
+              >
+                {t.name}
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-teal-400">Try it in 🎨 Customize.</p>
         </div>
       )}
 
