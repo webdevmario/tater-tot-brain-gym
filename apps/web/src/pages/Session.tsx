@@ -123,6 +123,8 @@ export default function Session() {
       await finish();
       return;
     }
+    // Nothing from the last question (focus, a pressed button) carries over.
+    (document.activeElement as HTMLElement | null)?.blur?.();
     setItem(next.item);
     setReveal(null);
     setFeedback(null);

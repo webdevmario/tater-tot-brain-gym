@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  // hover: styles only on devices with a real pointer. On an iPad a tap
+  // leaves :hover "stuck" on whatever sits under the finger, which made
+  // the answer in the same spot on the next question look pre-selected.
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
       fontFamily: {
