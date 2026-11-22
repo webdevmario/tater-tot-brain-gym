@@ -2,8 +2,8 @@ import type { Week } from "../lib/api";
 
 const DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 
-// Apple-Fitness-style ring for the weekly workout goal, plus one dot per
-// weekday. The ring caps at full; extra workouts just keep it closed.
+// Apple-Fitness-style ring for the weekly goal (days practiced), plus one
+// dot per weekday. The ring caps at full; extra days just keep it closed.
 export default function WeekRing({ week, size = 96 }: { week: Week; size?: number }) {
   const stroke = size * 0.13;
   const r = (size - stroke) / 2;
@@ -38,7 +38,9 @@ export default function WeekRing({ week, size = 96 }: { week: Week; size?: numbe
       </div>
       <div>
         <p className="font-display font-semibold text-lg text-teal-600 leading-tight">
-          {closed ? "Weekly goal done!" : `${week.goal - week.done} more this week`}
+          {closed
+            ? "Weekly goal done!"
+            : `${week.goal - week.done} more ${week.goal - week.done === 1 ? "day" : "days"} this week`}
         </p>
         <div className="mt-2 flex gap-1.5" aria-label="Workout days this week">
           {week.days.map((on, i) => (

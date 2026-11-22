@@ -4,8 +4,9 @@
  * Strategy:
  *   1. Items due for review (nextReviewAt <= now) from enabled packs are the priority.
  *      Struggling items (flagged by admin) come first.
- *   2. If nothing is due, add brand-new items the kid has never seen,
- *      biased toward their grade level.
+ *   2. If nothing is due, add brand-new items the kid has never seen:
+ *      a random enabled pack first (so subjects mix evenly), then an item
+ *      from it nearest the kid's grade.
  *   3. If there are no new items either, fall back to whatever's closest
  *      to being due — but never an item they already got right today.
  *   4. Last, a miss from this round that hasn't been fixed yet comes back
@@ -27,6 +28,10 @@ export type RoundHistory = {
   /** Item IDs answered in this round, oldest first. */
   answered: Array<{ itemId: string; correct: boolean }>;
 };
+
+function pickRandom<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)];
+}
 
 function startOfToday(now: Date) {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -75,15 +80,23 @@ export async function pickNextItem(
     .findMany({ where: { kidId }, select: { itemId: true } })
     .then((rows) => rows.map((r) => r.itemId));
 
+  // Pick a pack first, then an item in it, so a mixed workout really
+  // mixes subjects. (Taking the first N unseen items let whichever packs
+  // were loaded first crowd out the rest until they ran dry.)
   const newItems = await prisma.item.findMany({
     where: { ...inPacks, id: { notIn: [...seenItemIds, ...excludeIds] } },
-    orderBy: { gradeLevel: "desc" }, // prefer items at kid's current grade
-    take: 20,
+    select: { id: true, packId: true, gradeLevel: true },
   });
   if (newItems.length > 0) {
-    const atGrade = newItems.filter((i) => i.gradeLevel === kid.grade);
-    const pool = atGrade.length > 0 ? atGrade : newItems;
-    return pool[Math.floor(Math.random() * pool.length)];
+    const byPack = new Map<string, typeof newItems>();
+    for (const i of newItems) byPack.set(i.packId, [...(byPack.get(i.packId) ?? []), i]);
+    const packItems = pickRandom([...byPack.values()]);
+    // Within the pack, the closest to the kid's grade (items above it are
+    // already filtered out).
+    const top = Math.max(...packItems.map((i) => i.gradeLevel));
+    const chosen = pickRandom(packItems.filter((i) => i.gradeLevel === top));
+    const item = await prisma.item.findUnique({ where: { id: chosen.id } });
+    if (item) return item;
   }
 
   // 3. Nothing due and nothing new: keep drilling with whatever's closest

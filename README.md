@@ -28,7 +28,7 @@ It is not a game, but it borrows what makes good learning apps sticky:
   (trying counts), bonuses for finishing and for perfect rounds. XP
   climbs plain numbered levels (Level 1, 2, 3…); past Level 10 every
   1,500 XP is another level.
-- **Weekly goal ring (Apple Fitness-style):** per-kid workouts-per-week
+- **Weekly goal ring (Apple Fitness-style):** per-kid practice-days-per-week
   goal, plus a day streak that never shames when it resets.
 - **Trophies:** ~25 badges for workouts, facts learned and mastered,
   streaks, perfect rounds, and "bouncing back" on missed facts. Locked

@@ -226,7 +226,7 @@ export const BADGES: BadgeDef[] = [
     code: "weekly-goal",
     label: "Goal Getter",
     emoji: "🎯",
-    description: "Hit your weekly workout goal",
+    description: "Practice enough days in one week to close your ring",
     metric: "weeklyGoalMet",
     target: 1,
   },
@@ -275,13 +275,16 @@ export async function getKidProgress(kidId: string) {
   const days = new Set(workouts.map((s) => dayKey(s.endedAt!)));
   const streak = computeStreak(days, now);
   const weekStart = startOfWeek(now);
-  const thisWeek = workouts.filter((s) => s.endedAt! >= weekStart).length;
   // Which weekdays (Mon..Sun) had a workout — drives the week dots.
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + i);
     return days.has(dayKey(d));
   });
+  // The weekly goal counts days practiced, not rounds. Rounds take about a
+  // minute, so a round count was met in one sitting; days build the habit.
+  const thisWeek = weekDays.filter(Boolean).length;
+  const weeklyGoal = Math.min(kid.weeklyGoal, 7);
 
   const perfectRounds = workouts.filter(
     (s) =>
@@ -302,7 +305,7 @@ export async function getKidProgress(kidId: string) {
     longestStreak: longestStreak(days),
     perfectRounds,
     bounceBacks,
-    weeklyGoalMet: thisWeek >= kid.weeklyGoal,
+    weeklyGoalMet: thisWeek >= weeklyGoal,
   };
 
   const earnedMap = new Map(earnedBadges.map((b) => [b.code, b.earnedAt]));
@@ -324,7 +327,7 @@ export async function getKidProgress(kidId: string) {
     rank: rankForXp(totalXp),
     streak: streak.current,
     practicedToday: streak.practicedToday,
-    week: { done: thisWeek, goal: kid.weeklyGoal, days: weekDays },
+    week: { done: thisWeek, goal: weeklyGoal, days: weekDays },
     stats,
     badges,
     reviewStates,

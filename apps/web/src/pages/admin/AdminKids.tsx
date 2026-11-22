@@ -127,7 +127,7 @@ export default function AdminKids() {
               <p className="text-sm text-teal-400">
                 {kid.isTest
                   ? `Grade ${kid.grade} · Play as this profile, then reset it.`
-                  : `Grade ${kid.grade} · ${kid.roundSize} per round · ${kid.weeklyGoal}×/week`}
+                  : `Grade ${kid.grade} · ${kid.roundSize} per round · ${kid.weeklyGoal} days/week`}
               </p>
             </div>
             <div className="flex gap-2 ml-auto">
@@ -380,11 +380,11 @@ function KidForm({
               />
             </div>
             <div>
-              <label className="label">Weekly goal</label>
+              <label className="label">Days / week</label>
               <input
                 type="number"
                 min={1}
-                max={14}
+                max={7}
                 className="input"
                 value={form.weeklyGoal}
                 onChange={(e) =>

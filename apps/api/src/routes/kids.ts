@@ -33,7 +33,7 @@ const CreateKidSchema = z.object({
   grade: z.number().int().min(0).max(12),
   sessionMinutes: z.number().int().min(5).max(60).optional(),
   roundSize: z.number().int().min(5).max(30).optional(),
-  weeklyGoal: z.number().int().min(1).max(14).optional(),
+  weeklyGoal: z.number().int().min(1).max(7).optional(), // days per week
 });
 
 router.get("/", async (req, res) => {
