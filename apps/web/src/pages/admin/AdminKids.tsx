@@ -54,14 +54,6 @@ export default function AdminKids() {
     }
   }
 
-  function deleteKid(kid: Kid) {
-    if (!confirm(`Delete ${kid.firstName} and all their progress? This can't be undone.`)) return;
-    run(`delete:${kid.id}`, async () => {
-      await api.delete(`/api/kids/${kid.id}`);
-      await refresh();
-    });
-  }
-
   function resetTestKid(kid: Kid) {
     if (!confirm(`Reset ${kid.firstName} to a brand-new start? All of this test profile's rounds, XP and trophies are wiped.`)) return;
     run(`reset:${kid.id}`, async () => {
@@ -92,12 +84,12 @@ export default function AdminKids() {
         <div className="flex gap-2">
           {!hasTestKid && (
             <button onClick={addTestKid} disabled={!!pending} className="btn-secondary">
-              Add test profile
+              Add Test Profile
               {pending === "test" && <Spinner />}
             </button>
           )}
           <button onClick={() => setCreating(true)} className="btn-primary">
-            + Add kid
+            + Add Kid
           </button>
         </div>
       </div>
@@ -112,25 +104,33 @@ export default function AdminKids() {
 
       <div className="grid gap-4">
         {kids?.map((kid) => (
-          <div key={kid.id} className={`card flex items-center gap-4 ${kid.isTest ? "!border-dashed" : ""}`}>
-            <KidAvatar kid={kid} className="shrink-0 w-16 h-16" emojiClassName="text-2xl" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-display font-bold text-xl text-teal-500 truncate">
-                {kid.firstName} {kid.lastName}
-                <span className="ml-2 text-base font-normal text-teal-400">@{kid.username}</span>
+          <div
+            key={kid.id}
+            className={`card !p-4 sm:!px-5 flex items-center gap-x-4 gap-y-3 flex-wrap ${kid.isTest ? "!border-dashed" : ""}`}
+          >
+            <KidAvatar kid={kid} className="shrink-0 w-14 h-14" emojiClassName="text-2xl" />
+            {/* Name block grows to fill the row; when the row is too narrow
+                for it and the buttons, the buttons drop to their own line
+                instead of pushing the card sideways. */}
+            <div className="flex-1 basis-56 min-w-0">
+              <h3 className="font-display font-bold text-xl text-teal-500 flex items-center gap-2 min-w-0">
+                <span className="truncate">
+                  {kid.firstName} {kid.lastName}
+                </span>
                 {kid.isTest && (
-                  <span className="ml-2 align-middle rounded-full bg-spud-50 border border-spud-200 px-2 py-0.5 text-xs font-bold text-spud-500">
+                  <span className="shrink-0 rounded-full bg-spud-50 border border-spud-200 px-2 py-0.5 text-xs font-bold text-spud-500">
                     TEST
                   </span>
                 )}
               </h3>
-              <p className="text-sm text-teal-400 truncate">
+              <p className="text-sm text-teal-400 truncate">@{kid.username}</p>
+              <p className="text-sm text-teal-400">
                 {kid.isTest
-                  ? `Grade ${kid.grade} · Play as this profile to try things out, then reset it.`
-                  : `Grade ${kid.grade} · ${kid.roundSize} questions per round · ${kid.weeklyGoal}×/week`}
+                  ? `Grade ${kid.grade} · Play as this profile, then reset it.`
+                  : `Grade ${kid.grade} · ${kid.roundSize} per round · ${kid.weeklyGoal}×/week`}
               </p>
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 ml-auto">
               <Link to={`/admin/progress/${kid.id}`} className="btn-secondary !py-2 !px-3 text-sm">
                 Progress
               </Link>
@@ -158,20 +158,12 @@ export default function AdminKids() {
                 Edit
                 {pending === `edit:${kid.id}` && <Spinner />}
               </button>
-              <button
-                onClick={() => deleteKid(kid)}
-                disabled={!!pending}
-                className="btn-danger !py-2 !px-3 text-sm"
-              >
-                Delete
-                {pending === `delete:${kid.id}` && <Spinner />}
-              </button>
             </div>
           </div>
         ))}
         {kids?.length === 0 && (
           <div className="card text-center text-teal-400">
-            No kids yet. Click "Add kid" to create the first profile.
+            No kids yet. Tap "Add Kid" to create the first profile.
           </div>
         )}
       </div>
@@ -180,6 +172,19 @@ export default function AdminKids() {
         <KidForm
           kid={editing}
           packs={packs ?? []}
+          onDelete={
+            editing
+              ? () => {
+                  const kid = editing;
+                  if (!confirm(`Delete ${kid.firstName} and all their progress? This can't be undone.`)) return;
+                  setEditing(null);
+                  run(`delete:${kid.id}`, async () => {
+                    await api.delete(`/api/kids/${kid.id}`);
+                    await refresh();
+                  });
+                }
+              : undefined
+          }
           onClose={() => {
             setEditing(null);
             setCreating(false);
@@ -195,10 +200,12 @@ function KidForm({
   kid,
   packs,
   onClose,
+  onDelete,
 }: {
   kid: Kid | null;
   packs: Pack[];
   onClose: () => void;
+  onDelete?: () => void;
 }) {
   const [form, setForm] = useState({
     firstName: kid?.firstName ?? "",
@@ -512,6 +519,11 @@ function KidForm({
             <button type="button" onClick={onClose} className="btn-secondary">
               Cancel
             </button>
+            {onDelete && (
+              <button type="button" onClick={onDelete} disabled={saving} className="btn-danger">
+                Delete
+              </button>
+            )}
           </div>
         </form>
       </div>

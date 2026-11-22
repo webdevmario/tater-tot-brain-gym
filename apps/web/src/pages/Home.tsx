@@ -40,7 +40,7 @@ export default function Home() {
       {kids && kids.length === 0 && (
         <div className="panel max-w-lg w-full p-8 text-center">
           <p className="text-2xl font-display font-semibold mb-2">No profiles yet</p>
-          <p className="text-teal-400 mb-6">A grown-up can add kids in the parent area.</p>
+          <p className="text-teal-400 mb-6">A grown-up can add kids in the Parent Area.</p>
           <Link to="/admin" className="btn-primary">
             Add a kid
           </Link>
@@ -101,7 +101,7 @@ export default function Home() {
 
       <div className="mt-auto pt-16">
         <Link to="/admin" className="text-teal-300 hover:text-teal-500 text-sm px-3 py-2">
-          Parent area
+          Parent Area
         </Link>
       </div>
     </div>

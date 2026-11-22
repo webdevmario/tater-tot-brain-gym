@@ -2,8 +2,11 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import {
+  SPEEDS,
+  SPEED_SETTING_KEY,
   VOICE_SETTING_KEY,
   clearVoiceCache,
+  currentSpeed,
   currentVoice,
   listVoices,
   renderClip,
@@ -28,7 +31,11 @@ router.get("/", async (req, res) => {
   }
   try {
     const file = await renderClip(text, rate, voice);
-    res.setHeader("Cache-Control", "public, max-age=604800");
+    // The URL doesn't name the voice or speed (those are settings), so
+    // devices must revalidate or a new choice wouldn't be heard for days.
+    // Each voice/speed renders to a different file, so the ETag changes
+    // with the setting and an unchanged clip is a cheap 304.
+    res.setHeader("Cache-Control", "no-cache");
     res.type("audio/mp4").sendFile(file);
   } catch {
     // Browser falls back to on-device speech.
@@ -38,7 +45,19 @@ router.get("/", async (req, res) => {
 
 router.get("/voices", async (_req, res) => {
   clearVoiceCache(); // pick up voices downloaded since the server started
-  res.json({ voices: await listVoices(), current: await currentVoice() });
+  res.json({ voices: await listVoices(), current: await currentVoice(), speed: await currentSpeed() });
+});
+
+router.put("/speed", async (req, res) => {
+  const speeds = Object.keys(SPEEDS) as [keyof typeof SPEEDS, ...(keyof typeof SPEEDS)[]];
+  const parsed = z.object({ speed: z.enum(speeds) }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Bad speed" });
+  await prisma.appSetting.upsert({
+    where: { key: SPEED_SETTING_KEY },
+    update: { value: parsed.data.speed },
+    create: { key: SPEED_SETTING_KEY, value: parsed.data.speed },
+  });
+  res.json({ speed: await currentSpeed() });
 });
 
 router.put("/voice", async (req, res) => {

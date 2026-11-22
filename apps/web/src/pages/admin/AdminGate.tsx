@@ -50,12 +50,12 @@ export default function AdminGate() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
       <Link to="/" className="text-teal-400 text-sm mb-6 hover:text-teal-500">
-        ← Back to kid picker
+        ← Back to Kid Picker
       </Link>
 
       <div className="card max-w-md w-full">
         <h1 className="text-3xl font-display font-bold text-teal-500 mb-2">
-          {mode === "setup" ? "Set up admin" : "Admin login"}
+          {mode === "setup" ? "Set Up Parent Area" : "Parent Area"}
         </h1>
         <p className="text-teal-400 mb-6">
           {mode === "setup"
@@ -95,7 +95,7 @@ export default function AdminGate() {
               />
             </div>
             <button type="submit" className="btn-primary w-full">
-              Set PIN and continue
+              Set PIN and Continue
             </button>
           </form>
         )}

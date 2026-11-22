@@ -32,11 +32,11 @@ export default function AdminLayout() {
       <header className="shrink-0 border-b-2 border-teal-100 bg-white/80 backdrop-blur px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link to="/" className="text-teal-400 hover:text-teal-500">
-            ← Exit admin
+            ← Exit Parent Area
           </Link>
           <div className="h-6 w-px bg-teal-100" />
           <h1 className="text-xl font-display font-bold text-teal-500">
-            Brain Gym · Admin
+            Brain Gym · Parent Area
           </h1>
         </div>
         <button onClick={logout} className="text-sm text-teal-400 hover:text-coral-500">
@@ -44,9 +44,12 @@ export default function AdminLayout() {
         </button>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <aside className="shrink-0 md:w-60 p-4 md:border-r-2 border-teal-100 overflow-y-auto">
-          <nav className="space-y-2">
+      {/* Side rail only on wide screens (iPad landscape and up). Narrower,
+          the nav is a row of tabs under the header so the page keeps its
+          full width for content. */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <aside className="shrink-0 lg:w-56 px-4 pt-3 lg:p-4 lg:border-r-2 border-teal-100 lg:overflow-y-auto">
+          <nav className="flex gap-2 lg:block lg:space-y-2">
             <NavLink to="/admin/kids" className={({ isActive }) => navItemClass(isActive)}>
               Kids
             </NavLink>

@@ -56,7 +56,7 @@ export default function AdminProgress() {
       </Link>
 
       <h1 className="text-3xl font-display font-bold text-teal-500 mb-1">
-        {kid.firstName} {kid.lastName}'s progress
+        {kid.firstName} {kid.lastName}'s Progress
       </h1>
       <p className="text-sm text-teal-400 mb-6">
         @{kid.username} · Grade {kid.grade} · {sessions.length} completed session{sessions.length === 1 ? "" : "s"}
@@ -88,7 +88,7 @@ export default function AdminProgress() {
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="card">
           <h2 className="text-xl font-display font-bold text-teal-500 mb-4">
-            By pack
+            By Pack
           </h2>
           {packStats.length === 0 ? (
             <p className="text-teal-400 text-sm italic">No practice yet.</p>
@@ -116,7 +116,7 @@ export default function AdminProgress() {
 
         <div className="card">
           <h2 className="text-xl font-display font-bold text-teal-500 mb-4">
-            Needs attention
+            Needs Attention
           </h2>
           {strugglingItems.length === 0 ? (
             <p className="text-teal-400 text-sm italic">Nothing flagged as struggling yet.</p>
@@ -137,7 +137,7 @@ export default function AdminProgress() {
 
       <div className="card">
         <h2 className="text-xl font-display font-bold text-teal-500 mb-4">
-          Recent attempts
+          Recent Attempts
         </h2>
         {recentAttempts.length === 0 ? (
           <p className="text-teal-400 text-sm italic">No attempts yet.</p>

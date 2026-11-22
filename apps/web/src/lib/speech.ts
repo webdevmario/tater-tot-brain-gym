@@ -4,7 +4,7 @@
 // iPad hears the same good voice without downloading anything. If the
 // server can't speak, fall back to the device's own speech engine.
 
-import { loadBuffer, playBuffer } from "./audio";
+import { forgetBuffers, loadBuffer, playBuffer } from "./audio";
 
 export type Pace = "normal" | "slow";
 
@@ -18,6 +18,11 @@ let token = 0;
 /** Warm the cache so the first tap plays instantly. */
 export function prefetchSpeech(text: string, pace: Pace = "normal"): void {
   if (text) loadBuffer(clipUrl(text, pace));
+}
+
+/** After the voice or speed changes, forget clips already loaded on this device. */
+export function resetSpeechCache(): void {
+  forgetBuffers("/api/tts?");
 }
 
 export async function speak(text: string, pace: Pace = "normal"): Promise<void> {

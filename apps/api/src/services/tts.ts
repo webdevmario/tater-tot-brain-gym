@@ -25,6 +25,7 @@ export const TTS_DIR = path.join(UPLOADS_DIR, "tts");
 fs.mkdirSync(TTS_DIR, { recursive: true });
 
 export const VOICE_SETTING_KEY = "tts-voice";
+export const SPEED_SETTING_KEY = "tts-speed";
 
 export type Voice = { name: string; lang: string; quality: "premium" | "enhanced" | "standard" };
 
@@ -93,8 +94,18 @@ export async function currentVoice(): Promise<string | null> {
   return (us[0] ?? voices[0]).name;
 }
 
-const RATES = { normal: 165, slow: 105 } as const;
-export type Rate = keyof typeof RATES;
+// Words per minute. "speed" is the parent's setting for everyday
+// read-aloud; "slow" pace is a separate, much slower read for sounding
+// a word out, so it ignores the setting.
+export const SPEEDS = { slower: 135, normal: 165, faster: 190 } as const;
+export type Speed = keyof typeof SPEEDS;
+const SLOW_WPM = 105;
+export type Rate = "normal" | "slow";
+
+export async function currentSpeed(): Promise<Speed> {
+  const row = await prisma.appSetting.findUnique({ where: { key: SPEED_SETTING_KEY } });
+  return row && row.value in SPEEDS ? (row.value as Speed) : "normal";
+}
 
 const inflight = new Map<string, Promise<string>>();
 
@@ -102,8 +113,9 @@ const inflight = new Map<string, Promise<string>>();
 export async function renderClip(text: string, rate: Rate, voiceOverride?: string): Promise<string> {
   const voice = voiceOverride ?? (await currentVoice());
   if (!voice) throw new Error("Speech is not available on this server");
+  const wpm = rate === "slow" ? SLOW_WPM : SPEEDS[await currentSpeed()];
 
-  const key = crypto.createHash("sha1").update(`${voice}|${rate}|${text}`).digest("hex");
+  const key = crypto.createHash("sha1").update(`${voice}|${wpm}|${text}`).digest("hex");
   const file = path.join(TTS_DIR, `${key}.m4a`);
   if (fs.existsSync(file)) return file;
   const pending = inflight.get(key);
@@ -113,7 +125,7 @@ export async function renderClip(text: string, rate: Rate, voiceOverride?: strin
     const tmp = `${file}.${process.pid}.tmp.m4a`;
     await run(
       "say",
-      ["-v", voice, "-r", String(RATES[rate]), "--file-format=m4af", "--data-format=aac", "-o", tmp, "--", text],
+      ["-v", voice, "-r", String(wpm), "--file-format=m4af", "--data-format=aac", "-o", tmp, "--", text],
       { timeout: 15000 }
     );
     fs.renameSync(tmp, file);

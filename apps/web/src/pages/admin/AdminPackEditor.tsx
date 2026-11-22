@@ -47,7 +47,7 @@ export default function AdminPackEditor() {
   return (
     <div>
       <Link to="/admin/packs" className="text-teal-400 text-sm hover:text-teal-500 mb-4 inline-block">
-        ← All packs
+        ← All Packs
       </Link>
 
       <h1 className="text-3xl font-display font-bold text-teal-500 mb-2">{pack.title}</h1>

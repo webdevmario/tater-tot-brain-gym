@@ -113,7 +113,7 @@ export default function SpeedTrend({ data }: { data: SpeedData }) {
 
   return (
     <div className="card mb-8">
-      <h2 className="text-xl font-display font-bold text-teal-500">Speed and accuracy, last 8 weeks</h2>
+      <h2 className="text-xl font-display font-bold text-teal-500">Speed and Accuracy, Last 8 Weeks</h2>
       <p className="text-sm text-teal-400 mt-1 mb-4">
         Typical time to answer correctly (median), and share answered right, per week. The clock pauses when the app
         is in the background, and answers over a minute count as "walked away" and are left out

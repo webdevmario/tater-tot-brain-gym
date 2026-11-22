@@ -74,6 +74,11 @@ export function loadBuffer(url: string): Promise<AudioBuffer | null> {
   return p;
 }
 
+/** Drop decoded clips whose URL starts with prefix, so the next play refetches. */
+export function forgetBuffers(prefix: string): void {
+  for (const url of buffers.keys()) if (url.startsWith(prefix)) buffers.delete(url);
+}
+
 export function playBuffer(buf: AudioBuffer, volume = 1): AudioBufferSourceNode | null {
   const c = audioContext();
   if (!c) return null;
