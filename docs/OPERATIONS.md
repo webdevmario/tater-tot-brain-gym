@@ -115,7 +115,7 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.pl
 - **ProgramArguments** — sources nvm, cds into `apps/api`, runs
   `node --import tsx src/index.ts` (no separate build step needed).
 - **StandardOutPath / StandardErrorPath** —
-  `/tmp/tatertot-braingym.log` and `/tmp/tatertot-braingym-error.log`.
+  `~/Library/Logs/tatertot-braingym/tatertot-braingym.log` and `~/Library/Logs/tatertot-braingym/tatertot-braingym-error.log`.
 
 ### Common commands
 
@@ -133,8 +133,8 @@ pnpm prod:deploy     # build + migrate + restart
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.plist
 launchctl bootout   gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.plist
 launchctl list | grep com.tatertot.braingym
-cat /tmp/tatertot-braingym.log
-cat /tmp/tatertot-braingym-error.log
+cat ~/Library/Logs/tatertot-braingym/tatertot-braingym.log
+cat ~/Library/Logs/tatertot-braingym/tatertot-braingym-error.log
 ```
 
 ### If the service won't start

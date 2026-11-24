@@ -24,8 +24,8 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/tmp/tatertot-braingym.log</string>
+    <string>__HOME__/Library/Logs/tatertot-braingym/tatertot-braingym.log</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/tatertot-braingym-error.log</string>
+    <string>__HOME__/Library/Logs/tatertot-braingym/tatertot-braingym-error.log</string>
 </dict>
 </plist>
