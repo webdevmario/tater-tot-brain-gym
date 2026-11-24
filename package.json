@@ -13,12 +13,13 @@
     "db:studio": "pnpm --filter @ttbg/api db:studio",
     "db:reset": "pnpm --filter @ttbg/api db:reset",
     "db:backup": "mkdir -p backups && cp apps/api/prisma/dev.db backups/dev-$(date +%Y%m%d-%H%M%S).db && echo 'Backup created in backups/'",
+    "prod:install": "mkdir -p ~/Library/Logs/tatertot-braingym && sed \"s#__HOME__#$HOME#g\" scripts/com.tatertot.braingym.plist > ~/Library/LaunchAgents/com.tatertot.braingym.plist",
     "prod:start": "launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.plist",
     "prod:stop": "launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.tatertot.braingym.plist 2>/dev/null; lsof -ti:4000 | xargs kill -9 2>/dev/null; true",
     "prod:restart": "pnpm prod:stop && sleep 1 && pnpm prod:start",
     "prod:status": "launchctl list | grep com.tatertot.braingym || echo 'not loaded'",
-    "prod:logs": "tail -n 200 -f /tmp/tatertot-braingym.log",
-    "prod:errors": "tail -n 200 -f /tmp/tatertot-braingym-error.log",
+    "prod:logs": "tail -n 200 -f ~/Library/Logs/tatertot-braingym/tatertot-braingym.log",
+    "prod:errors": "tail -n 200 -f ~/Library/Logs/tatertot-braingym/tatertot-braingym-error.log",
     "prod:deploy": "pnpm --filter @ttbg/api exec prisma migrate deploy && pnpm --filter @ttbg/api exec prisma generate && pnpm build && pnpm prod:restart"
   },
   "devDependencies": {

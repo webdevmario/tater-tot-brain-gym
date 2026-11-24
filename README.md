@@ -281,7 +281,7 @@ family's iPads, phones, and laptops over Tailscale. The setup mirrors
 pnpm build
 
 # Install the launchd plist
-cp scripts/com.tatertot.braingym.plist ~/Library/LaunchAgents/com.tatertot.braingym.plist
+npm run prod:install   # fills in your home folder, creates ~/Library/Logs/tatertot-braingym
 
 # Start the service
 pnpm prod:start
